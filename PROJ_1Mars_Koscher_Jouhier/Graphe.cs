@@ -66,9 +66,10 @@ namespace PROJ_1Mars_Koscher_Jouhier
             Console.WriteLine("Liste d'adjacence :\n");
             for(int i = 0; i < liste_adjacence.Count; i++)
             {
-                for(int j = 0; j < liste_adjacence[i].Count; j++)
+                Console.Write(i+1 + " : ");
+                for (int j = 0; j < liste_adjacence[i].Count; j++)
                 {
-                    Console.Write(liste_adjacence[i][j].Numero + " ");
+                    Console.Write( liste_adjacence[i][j].Numero + " ");
                 }
                 Console.WriteLine("");
             }
