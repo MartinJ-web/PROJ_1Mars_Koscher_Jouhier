@@ -8,16 +8,26 @@ namespace PROJ_1Mars_Koscher_Jouhier
 {
     internal class Noeud
     {
-        int numero;
+        string nom;
 
-        public Noeud(int numero)
+        public Noeud(string nom)
         {
-            this.numero = numero;
+            this.nom = nom; 
         }
 
-        public int Numero
+        public string Nom
         {
-            get { return numero; }
+            get { return nom; }
+        }        
+
+        public bool Equals(Noeud noeud)
+        {
+            return (this.nom == noeud.nom);
+        }
+
+        public string ToString()
+        {
+            return this.nom;
         }
     }
 }

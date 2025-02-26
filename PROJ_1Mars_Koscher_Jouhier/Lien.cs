@@ -8,13 +8,23 @@ namespace PROJ_1Mars_Koscher_Jouhier
 {
     internal class Lien
     {
-        Noeud depuis;
-        Noeud vers;
+        Noeud depart;
+        Noeud arrivee;
 
-        public Lien(Noeud depuis, Noeud vers)
+        public Lien(Noeud depart, Noeud arrivee)
         {
-            this.depuis = depuis;
-            this.vers = vers;
+            this.depart = depart;
+            this.arrivee = arrivee;
+        }
+
+        public Noeud Depart
+        {
+            get { return depart; }
+        }
+
+        public Noeud Arrivee
+        {
+            get { return arrivee; }
         }
     }
 
