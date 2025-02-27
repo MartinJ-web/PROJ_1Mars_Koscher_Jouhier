@@ -10,6 +10,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
     {
         Noeud depart;
         Noeud arrivee;
+        int poids;
 
         public Lien(Noeud depart, Noeud arrivee)
         {
