@@ -6,55 +6,9 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        string[] lignes = File.ReadAllLines("Liens_Test.txt");
-        List<string> nom_noeuds = new List<string>();
-        List<Noeud> noeuds = new List<Noeud>();
-        List<Lien> liens = new List<Lien>();
-        foreach (string ligne in lignes)
-        {
-            Noeud noeud_depart;
-            Noeud noeud_arrivee;
-            string[] lien_tab = ligne.Split(' ');
-            if (!nom_noeuds.Contains(lien_tab[0]))
-            {
-                nom_noeuds.Add(lien_tab[0]);
-                noeud_depart = new Noeud(lien_tab[0]);
-                noeuds.Add(noeud_depart);
-            }
-            else
-            {
-                int index = -1;
-                for(int i = 0; i < noeuds.Count; i++)
-                {
-                    if (noeuds[i].Nom == lien_tab[0])
-                    {
-                        index = i;
-                    }
-                }
-                noeud_depart = noeuds[index];
-            }
-            if (!nom_noeuds.Contains(lien_tab[1]))
-            {
-                nom_noeuds.Add(lien_tab[1]);
-                noeud_arrivee = new Noeud(lien_tab[1]);
-                noeuds.Add(noeud_arrivee);
-            }
-            else
-            {
-                int index = -1;
-                for (int i = 0; i < noeuds.Count; i++)
-                {
-                    if (noeuds[i].Nom == lien_tab[1])
-                    {
-                        index = i;
-                    }
-                }
-                noeud_arrivee = noeuds[index];
-            }
-            Lien lien = new Lien(noeud_depart, noeud_arrivee);
-            liens.Add(lien);
-        }
-        Graphe karate = new Graphe(noeuds, liens);
+        string[] lignes = File.ReadAllLines("PROJ_Lien_Karate.txt");
+        
+        Graphe karate = new Graphe(lignes);
         karate.ToString();
         List<Noeud> noeuds_karate = karate.Noeuds;
         Console.Write("Parcours en profondeur depuis " + noeuds_karate[0].Nom + " : ");
@@ -71,12 +25,26 @@ internal class Program
         Console.WriteLine("");
         if(karate.EstConnexe())
         {
-            Console.WriteLine("Le graph est connexe");
+            Console.WriteLine("Le graphe est connexe");
         }
         else
         {
             Console.WriteLine("Le graphe n'est pas connexe");
         }
         karate.AfficheGraphe();
+        List<Noeud> circuit = karate.TrouveCircuit();
+        if (circuit != null)
+        {
+            Console.Write("un circuit de longueur " + (circuit.Count-1) + " a été trouvé : ");
+            foreach (Noeud noeud in circuit)
+            {
+                Console.Write(noeud.Nom + " ");
+            }
+            Console.WriteLine("");
+        }
+        else
+        {
+            Console.WriteLine("Ce graphe ne comprte pas de circuit");
+        }
     }
 }

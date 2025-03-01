@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -14,14 +16,68 @@ namespace PROJ_1Mars_Koscher_Jouhier
 {
     internal class Graphe
     {
+        /// <summary>
+        /// Attributs pour la classe graphe
+        /// </summary>
         List<Noeud> noeuds;
         List<Lien> liens;
         List<List<Noeud>> liste_adjacence;
         int[,] matrice_adjacence;
         
 
-        public Graphe(List<Noeud> noeuds, List<Lien> liens)
+        /// <summary>
+        /// Constructeur pour la classe graphe à partir d'un tableau de liens
+        /// </summary>
+        /// <param name="lignes"> Tableau de liens </param>
+        public Graphe(string[] lignes)
         {
+            List<string> nom_noeuds = new List<string>();
+            List<Noeud> noeuds = new List<Noeud>();
+            List<Lien> liens = new List<Lien>();
+            foreach (string ligne in lignes)
+            {
+                Noeud noeud_depart;
+                Noeud noeud_arrivee;
+                string[] lien_tab = ligne.Split(' ');
+                if (!nom_noeuds.Contains(lien_tab[0]))
+                {
+                    nom_noeuds.Add(lien_tab[0]);
+                    noeud_depart = new Noeud(lien_tab[0]);
+                    noeuds.Add(noeud_depart);
+                }
+                else
+                {
+                    int index = -1;
+                    for (int i = 0; i < noeuds.Count; i++)
+                    {
+                        if (noeuds[i].Nom == lien_tab[0])
+                        {
+                            index = i;
+                        }
+                    }
+                    noeud_depart = noeuds[index];
+                }
+                if (!nom_noeuds.Contains(lien_tab[1]))
+                {
+                    nom_noeuds.Add(lien_tab[1]);
+                    noeud_arrivee = new Noeud(lien_tab[1]);
+                    noeuds.Add(noeud_arrivee);
+                }
+                else
+                {
+                    int index = -1;
+                    for (int i = 0; i < noeuds.Count; i++)
+                    {
+                        if (noeuds[i].Nom == lien_tab[1])
+                        {
+                            index = i;
+                        }
+                    }
+                    noeud_arrivee = noeuds[index];
+                }
+                Lien lien = new Lien(noeud_depart, noeud_arrivee);
+                liens.Add(lien);
+            }
             Tri(noeuds);
             this.noeuds = noeuds;
             this.liens = liens;
@@ -65,15 +121,28 @@ namespace PROJ_1Mars_Koscher_Jouhier
             this.matrice_adjacence = matrice_adjacence;
         }
 
-        public List<Lien> Liens
-        {
-            get { return liens; }
-        }
+        /// <summary>
+        /// Propiété pour la liste de noeuds du graphe
+        /// </summary>
         public List<Noeud> Noeuds
         {
             get { return noeuds; }
         }
 
+        /// <summary>
+        /// Propriété pour la liste de lien du graphe
+        /// </summary>
+        public List<Lien> Liens
+        {
+            get { return liens; }
+        }
+
+        /// <summary>
+        /// Permet de trier la liste de noeuds et la liste d'adjacence (numériquement ou alphabétiquement)
+        /// </summary>
+        /// <param name="noeuds"> Liste de noeuds à trier </param>
+        /// <param name="debut"> Début de la liste à trier </param>
+        /// <param name="fin"> Fin de la liste de noeud à trier </param>
         public void Tri(List<Noeud> noeuds, int debut = int.MaxValue, int fin = int.MinValue)
         {
             if(debut == int.MaxValue && fin == int.MinValue)
@@ -89,6 +158,14 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 Fusion(noeuds, debut, milieu, fin);
             }
         }
+
+        /// <summary>
+        /// Partie récursive du tri mentionné précedemment
+        /// </summary>
+        /// <param name="noeuds"> Liste de noeuds à trier </param>
+        /// <param name="debut"> Début de la liste à trier </param>
+        /// <param name="milieu"> Milieu de la liste de noeud à trier </param>
+        /// <param name="fin"> Fin de la liste de noeud à trier </param>
         public void Fusion(List<Noeud> noeuds, int debut, int milieu, int fin)
         {
             if (debut < fin)
@@ -144,6 +221,9 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
+        /// <summary>
+        /// Affiche la liste et la matrice d'adjacence du graphe
+        /// </summary>
         public void ToString()
         {
             Console.WriteLine("Liste d'adjacence :\n");
@@ -170,6 +250,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
+        /// <summary>
+        /// Parcours le graphe en profondeur d'abord
+        /// </summary>
+        /// <param name="depart"> Noeud à partir duquel le graphe est parcouru </param>
+        /// <returns> Liste de noeuds représentant l'ordre dans lequel les noeuds sont découverts </returns>
         public List<Noeud> DFS(Noeud depart)
         {
             List<Noeud> ordre = new List<Noeud>();
@@ -177,22 +262,34 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return DFS_Rec(depart, visite, ordre);
         }
 
+        /// <summary>
+        /// Partie récursive du parcours mentionné précedemment
+        /// </summary>
+        /// <param name="depart"> Noeud à partir duquel le graphe est parcouru </param>
+        /// <param name="visite">Liste de noeuds indiquants si les noeuds sont déjà découvets par le parcours </param>
+        /// <param name="ordre"> Liste de noeuds représentant l'ordre dans lequel les noeuds sont découverts </param>
+        /// <returns> Liste de noeuds représentant l'ordre dans lequel les noeuds sont découverts </returns>
         public List<Noeud> DFS_Rec(Noeud depart, Stack<Noeud> visite, List<Noeud> ordre)
         {
-            if (visite.Contains(depart))
-            {
-                 return ordre;
-            }
-            ordre.Add(depart);
-            visite.Push(depart);
-            List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(depart.Nom)-1];
-            foreach (Noeud successeur in successeurs)
-            {
-                DFS_Rec(successeur, visite, ordre);
-            }
-            return ordre;
+                if (visite.Contains(depart))
+                {
+                    return ordre;
+                }
+                ordre.Add(depart);
+                visite.Push(depart);
+                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(depart.Nom) - 1];
+                foreach (Noeud successeur in successeurs)
+                {
+                    DFS_Rec(successeur, visite, ordre);
+                }
+                return ordre;
         }
 
+        /// <summary>
+        /// Parcours le graphe en largeur d'abord
+        /// </summary>
+        /// <param name="depart"> Noeud à partir duquel le graphe est parcouru </param>
+        /// <returns> Liste de noeuds représentant l'ordre dans lequel les noeuds sont découverts </returns>
         public List<Noeud> BFS(Noeud depart)
         {
             List<Noeud> ordre = new List<Noeud>();
@@ -218,12 +315,92 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return ordre;
         }
 
+        /// <summary>
+        /// Indique si le graphe est connexe
+        /// </summary>
+        /// <returns> true si le graphe est connexe </returns>
         public bool EstConnexe()
         {
             return (DFS(noeuds[0]).Count == noeuds.Count);
         }
 
+        /// <summary>
+        /// Recherche grce au DFS la présence d'un circuit dans le graphe
+        /// </summary>
+        /// <returns> Le circuit trouvé ou null si abscence de circuit </returns>
+        public List<Noeud> TrouveCircuit()
+        {
+            foreach(Noeud noeud in noeuds)
+            {
+                noeud.Pred = null;
+            }
+            List<Noeud> circuit = new List<Noeud>();
+            Stack<Noeud> visite = new Stack<Noeud>();
+            visite.Push(noeuds[0]);
+            bool circuit_existe = false;
+            while (visite.Count > 0)
+            {
+                Noeud noeud = visite.Pop();
+                if (circuit.Contains(noeud))
+                {
+                    circuit.Add(noeud);
+                    circuit_existe = true;
+                    break;
+                }
+                circuit.Add(noeud);
+                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(noeud.Nom) - 1];
+                foreach (Noeud successeur in successeurs)
+                {
+                    if (successeur.Nom != noeud.Pred)
+                    {
+                        visite.Push(successeur);
+                        successeur.Pred = noeud.Nom;
+                    }
+                }
+            }
+            if(circuit_existe)
+            {
+                int index_depart = circuit.IndexOf(circuit[circuit.Count - 1]);
+                List<int> index_a_supprimer = new List<int>();
+                for (int i = 0; i < index_depart; i++)
+                {
+                    index_a_supprimer.Add(i);
+                }
+                List<string> predecesseurs = new List<string>();
+                for(int i = 0; i < circuit.Count; i++)
+                {
+                    predecesseurs.Add(circuit[i].Pred);
+                }
+                for (int i = 0; i < predecesseurs.Count - 1; i++)
+                {
+                   if (predecesseurs.IndexOf(predecesseurs[i]) != i)
+                   {
+                       for(int j = predecesseurs.IndexOf(predecesseurs[i]); j < i; j++)
+                        {
+                            if(!index_a_supprimer.Contains(j))
+                            {
+                                index_a_supprimer.Add(j);
+                            }
+                        }
+                   }
+                }
+                index_a_supprimer.Sort();
+                for (int i = index_a_supprimer.Count - 1; i >= 0; i--)
+                {
+                    circuit.RemoveAt(index_a_supprimer[i]);
+                }
+                return circuit;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
+        /// <summary>
+        /// Génère et ouvre une image représentant le graphe
+        /// </summary>
+        /// <exception cref="NotSupportedException"> Occure si le système d'exploitation n'est pas reconnu (empêche d'ouvrir l'image) </exception>
         public void AfficheGraphe()
         {
             int width = 1080;
@@ -293,7 +470,9 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
             else
             {
+                Console.WriteLine("l'image du graphe à été sauvegardé sous le nom graphe.png dans /bin/Debug/net");
                 throw new NotSupportedException("Système d'exploitation non pris en charge.");
+
             }
             Process.Start(new ProcessStartInfo
             {
