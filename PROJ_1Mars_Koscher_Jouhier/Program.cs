@@ -7,7 +7,6 @@ internal class Program
     private static void Main(string[] args)
     {
         string[] lignes = File.ReadAllLines("PROJ_Lien_Karate.txt");
-        
         Graphe karate = new Graphe(lignes);
         karate.ToString();
         List<Noeud> noeuds_karate = karate.Noeuds;
@@ -23,7 +22,7 @@ internal class Program
             Console.Write(noeud.Nom + " ");
         }
         Console.WriteLine("");
-        if(karate.EstConnexe())
+        if (karate.EstConnexe())
         {
             Console.WriteLine("Le graphe est connexe");
         }
@@ -35,7 +34,7 @@ internal class Program
         List<Noeud> circuit = karate.TrouveCircuit();
         if (circuit != null)
         {
-            Console.Write("un circuit de longueur " + (circuit.Count-1) + " a été trouvé : ");
+            Console.Write("un circuit de longueur " + (circuit.Count - 1) + " a été trouvé : ");
             foreach (Noeud noeud in circuit)
             {
                 Console.Write(noeud.Nom + " ");
@@ -46,5 +45,6 @@ internal class Program
         {
             Console.WriteLine("Ce graphe ne comprte pas de circuit");
         }
+
     }
 }

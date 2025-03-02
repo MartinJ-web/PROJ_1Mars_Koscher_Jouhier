@@ -14,7 +14,7 @@ using SkiaSharp;
 
 namespace PROJ_1Mars_Koscher_Jouhier
 {
-    internal class Graphe
+    public class Graphe
     {
         /// <summary>
         /// Attributs pour la classe graphe

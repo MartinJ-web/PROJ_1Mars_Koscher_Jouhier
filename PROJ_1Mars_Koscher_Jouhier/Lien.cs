@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PROJ_1Mars_Koscher_Jouhier
 {
-    internal class Lien
+    public class Lien
     {
         /// <summary>
         /// Attributs pour la classe lien

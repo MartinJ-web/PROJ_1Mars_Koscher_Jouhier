@@ -9,7 +9,7 @@ using System.Windows.Markup;
 
 namespace PROJ_1Mars_Koscher_Jouhier
 {
-    internal class Noeud
+    public class Noeud
     {
         /// <summary>
         /// Attribbuts pour la classe Noeud
@@ -63,7 +63,6 @@ namespace PROJ_1Mars_Koscher_Jouhier
             get { return y; }
             set { y = value; }
         }
-
 
         /// <summary>
         /// Methode ToStrong pour un noeud
