@@ -6,6 +6,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        #region 1erMars
         string[] lignes = File.ReadAllLines("PROJ_Lien_Karate.txt");
         Graphe karate = new Graphe(lignes);
         karate.ToString();
@@ -45,6 +46,6 @@ internal class Program
         {
             Console.WriteLine("Ce graphe ne comprte pas de circuit");
         }
-
+        #endregion
     }
 }
