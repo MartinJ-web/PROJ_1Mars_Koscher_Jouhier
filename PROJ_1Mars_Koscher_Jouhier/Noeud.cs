@@ -18,7 +18,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         public string Nom
         {
             get { return nom; }
-        }        
+        }
 
         public bool Equals(Noeud noeud)
         {

@@ -145,7 +145,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
 
 
                 }
-
+                vicrot l bg
             }
         }
 
@@ -173,6 +173,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 }
                 Console.WriteLine("");
             }
+        }
+
+        public void AfficheGraphe()
+        {
+
         }
 
         //public List<Noeud> DFS(Noeud depart)
