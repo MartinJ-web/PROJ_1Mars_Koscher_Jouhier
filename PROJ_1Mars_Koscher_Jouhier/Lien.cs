@@ -24,6 +24,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         {
             this.depart = depart;
             this.arrivee = arrivee;
+            poids = 1;
         }
         public Lien(Noeud depart, Noeud arrivee, int poids)
         {
@@ -48,6 +49,10 @@ namespace PROJ_1Mars_Koscher_Jouhier
             get { return arrivee; }
         }
 
+        public int Poids
+        {
+            get { return poids; }
+        }
         /// <summary>
         /// Identifie si deux liens sont egaux
         /// </summary>

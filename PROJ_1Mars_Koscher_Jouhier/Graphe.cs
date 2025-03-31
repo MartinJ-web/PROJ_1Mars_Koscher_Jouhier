@@ -73,21 +73,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             this.liste_adjacence = liste_adjacence;
 
             int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
-            for (int i = 0; i < liste_adjacence.Count; i++)
+            foreach (Lien lien in liens)
             {
-                for (int j = 0; j < liste_adjacence[i].Count; j++)
-                {
-                    int indice = -1;
-                    for (int k = 0; k < noeuds.Count; k++)
-                    {
-                        if (liste_adjacence[i][j].Equals(noeuds[k]))
-                        {
-                            indice = k;
-                            break;
-                        }
-                    }
-                    matrice_adjacence[i, indice] = 1;
-                }
+                matrice_adjacence[lien.Depart.Numero - 1, lien.Arrivee.Numero - 1] = lien.Poids;
+                matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
+
             }
             this.matrice_adjacence = matrice_adjacence;
         }
@@ -179,22 +169,28 @@ namespace PROJ_1Mars_Koscher_Jouhier
             this.liste_adjacence = liste_adjacence;
 
             int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
-            for (int i = 0; i < liste_adjacence.Count; i++)
+            foreach (Lien lien in liens)
             {
-                for (int j = 0; j < liste_adjacence[i].Count; j++)
-                {
-                    int indice = -1;
-                    for(int k = 0; k < noeuds.Count; k++)
-                    {
-                        if (liste_adjacence[i][j].Equals(noeuds[k]))
-                        {
-                            indice = k;
-                            break;
-                        }
-                    }
-                    matrice_adjacence[i, indice] = 1;
-               }
+                matrice_adjacence[lien.Depart.Numero - 1, lien.Arrivee.Numero - 1] = lien.Poids;
+                matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
+
             }
+            //for (int i = 0; i < liste_adjacence.Count; i++)
+            //{
+            //    for (int j = 0; j < liste_adjacence[i].Count; j++)
+            //    {
+            //        int indice = -1;
+            //        for(int k = 0; k < noeuds.Count; k++)
+            //        {
+            //            if (liste_adjacence[i][j].Equals(noeuds[k]))
+            //            {
+            //                indice = k;
+            //                break;
+            //            }
+            //        }
+            //        matrice_adjacence[i, indice] = 1;
+            //   }
+            //}
             this.matrice_adjacence = matrice_adjacence;
         }
 
@@ -292,13 +288,13 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 if (noeud == noeud_depart) { distances.Add(noeud, 0); }
                 else { distances.Add(noeud, int.MaxValue); }
 
-            }//initialisation distances
+        //    }//initialisation distances
 
 
             Noeud noeud_actuel = noeud_depart;//depart
 
-            while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
-            {
+        //    while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
+        //    {
 
                 sommets_traites.Add(noeud_actuel);
                 sommets_visites.Add(noeud_actuel);
