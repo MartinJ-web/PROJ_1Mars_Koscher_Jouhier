@@ -283,41 +283,71 @@ namespace PROJ_1Mars_Koscher_Jouhier
 
         public void Dijkstra(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
         {
-            List<Noeud> sommets_visites = null;
-            List<(Noeud noeud, int)> distances = new List<(Noeud noeud, int)>();//distance de noeud par rapport à noeuddepart
-            distances = null;
+            List<Noeud> sommets_visites = new List<Noeud>();
+            List<Noeud> sommets_traites = new List<Noeud>();
+            SortedList<Noeud, int> distances = new SortedList<Noeud, int>();//distance de noeud par rapport à noeuddepart
+
             foreach (Noeud noeud in noeuds)
             {
-                if (noeud == noeud_depart) { distances.Add((noeud, 0)); }
-                else { distances.Add((noeud, int.MaxValue)); }
+                if (noeud == noeud_depart) { distances.Add(noeud, 0); }
+                else { distances.Add(noeud, int.MaxValue); }
 
             }//initialisation distances
 
 
-            int noeud_actuel = noeud_depart;//depart
+            Noeud noeud_actuel = noeud_depart;//depart
 
             while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
             {
 
-
-                sommets_visites.Add(noeud_actuel);// s'actualise à chaque itération
+                sommets_traites.Add(noeud_actuel);
+                sommets_visites.Add(noeud_actuel);
                 foreach (Noeud noeud in noeuds)
                 {
-                    //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
-                    if (matrice_adjacence[noeud_actuel, noeud] == 1)
+
+                    if (!sommets_traites.Contains(noeud))
                     {
-                        sommets_visites.Add((Noeud)noeud);
-                        distances.Add((noeud,))
+                        //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
+                        if (matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] > 0)
+                        {
+                            if (!sommets_visites.Contains(noeud))//s'il n'est pas encore visité
+                            {
+                                sommets_visites.Add((Noeud)noeud);
+                                distances.Add(noeud_actuel, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
+                            }
+                            else
+                            {
+                                if (distances.ElementAt(distances.IndexOfKey(noeud)).Value > matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value)
+                                {
+                                    distances.Remove(noeud);
+                                    distances.Add(noeud, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
+                                }
+
+                            }
+
+                        }
                     }
-
-
-
+             
                 }
-                //prendre dist min et réiterer sur noeud actuel
+
+                int min = int.MaxValue;
+                foreach (Noeud noeud in sommets_visites)
+                if (!sommets_traites.Contains(noeud))
+                {
+                     
+                     if (distances.ElementAt(distances.IndexOfKey(noeud)).Value < min)
+                     {
+                         noeud_actuel = noeud;
+                         min = distances.ElementAt(distances.IndexOfKey(noeud)).Value;
+                         
+                     }
+                }
+                
+
 
             }
 
-
+            }
 
         }
 
