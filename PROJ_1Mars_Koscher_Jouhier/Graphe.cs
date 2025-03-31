@@ -261,45 +261,42 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
-        public void Dijkstra(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
+        public int[] Dijkstra(Noeud noeud_depart)
         {
             List<Noeud> sommets_visites = new List<Noeud>();
             List<Noeud> sommets_traites = new List<Noeud>();
-            SortedList<Noeud, int> distances = new SortedList<Noeud, int>();//distance de noeud par rapport à noeuddepart
-
-            foreach (Noeud noeud in noeuds)
+            int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
+            for(int i = 0; i < noeuds.Count; i++)
             {
-                if (noeud == noeud_depart) { distances.Add(noeud, 0); }
-                else { distances.Add(noeud, int.MaxValue); }
-
-              }//initialisation distances
-
-
+                if (noeuds[i] == noeud_depart)
+                {
+                    distances[i] = 0;
+                }
+                else
+                {
+                    distances[i] = int.MaxValue;
+                }
+            }//initialisation distances
             Noeud noeud_actuel = noeud_depart;//depart
-
-            while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
+            sommets_visites.Add(noeud_actuel);
+            while (sommets_traites.Count < noeuds.Count)// vérifier condition sur sommets_visites
             {
                 sommets_traites.Add(noeud_actuel);
-                sommets_visites.Add(noeud_actuel);
-                foreach (Noeud noeud in noeuds)
+                for(int i = 0; i < noeuds.Count; i++)
                 {
-                    if (!sommets_traites.Contains(noeud))
+                    if (!sommets_traites.Contains(noeuds[i]) && matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] > 0)
                     {
                         //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
-                        if (matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] > 0)
+                        if (!sommets_visites.Contains(noeuds[i]))//s'il n'est pas encore visité
                         {
-                            if (!sommets_visites.Contains(noeud))//s'il n'est pas encore visité
+                            sommets_visites.Add(noeuds[i]);
+                            distances[i] = matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1];
+                        }
+                        else
+                        {
+                            if(distances[i] > matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1])
                             {
-                                sommets_visites.Add((Noeud)noeud);
-                                distances.Add(noeud_actuel, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
-                            }
-                            else
-                            {
-                                if (distances.ElementAt(distances.IndexOfKey(noeud)).Value > matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value)
-                                {
-                                    distances.Remove(noeud);
-                                    distances.Add(noeud, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
-                                }
+                                distances[i] = matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1];
                             }
                         }
                     }
@@ -307,17 +304,14 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 int min = int.MaxValue;
                 foreach (Noeud noeud in sommets_visites)
                 {
-                    if (!sommets_traites.Contains(noeud))
-                    {
-                        if (distances.ElementAt(distances.IndexOfKey(noeud)).Value < min)
-                        {
-                            noeud_actuel = noeud;
-                            min = distances.ElementAt(distances.IndexOfKey(noeud)).Value;
-
-                        }
+                    if (!sommets_traites.Contains(noeud) && distances[noeud.Numero - 1] < min)
+                    { 
+                        noeud_actuel = noeud;
+                        min = distances[noeud.Numero - 1] ;
                     }
                 }
             }
+            return distances;
         }
 
         public void BellmanFord(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
@@ -524,8 +518,10 @@ namespace PROJ_1Mars_Koscher_Jouhier
             {
                 canvas.Clear(SKColors.White);
 
-                using (var edgePaint = new SKPaint { Color = SKColors.Purple, StrokeWidth = 2, IsAntialias = true, Style = SKPaintStyle.Stroke })
+                using (var edgePaint = new SKPaint { Color = SKColors.MediumPurple, StrokeWidth = 3, IsAntialias = true, Style = SKPaintStyle.Stroke })
                 using (var nodePaint = new SKPaint { Color = SKColors.LightBlue, IsAntialias = true })
+                using (var weightPaint = new SKPaint { Color = SKColors.MediumPurple, IsAntialias = true })
+                using (var textPaint2 = new SKPaint { Color = SKColors.Black, TextSize = 16, IsAntialias = true })
                 using (var textPaint = new SKPaint { Color = SKColors.Black, TextSize = 20, IsAntialias = true })
                 {
                     // Dessiner les arêtes
@@ -537,13 +533,20 @@ namespace PROJ_1Mars_Koscher_Jouhier
                         {
                             canvas.DrawLine(fromNode.X, fromNode.Y, toNode.X, toNode.Y, edgePaint);
                         }
+                        float midX = (fromNode.X + toNode.X) / 2;
+                        float midY = (fromNode.Y + toNode.Y) / 2;
+                        midX = (fromNode.X + midX) / 2;
+                        midY = (fromNode.Y + midY) / 2;
+                        // Afficher le poids de l'arc
+                        canvas.DrawRect(midX, midY - 22, 22, 22, weightPaint);
+                        canvas.DrawText(Convert.ToString(lien.Poids), midX + 4, midY - 5, textPaint2);
                     }
 
                     // Dessiner les nœuds
                     foreach (var noeud in noeuds)
                     {
                         canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
-                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 8, noeud.Y + 8, textPaint);
+                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X, noeud.Y, textPaint);
                     }
                 }
 

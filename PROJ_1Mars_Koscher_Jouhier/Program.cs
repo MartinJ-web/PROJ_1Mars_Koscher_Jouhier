@@ -47,6 +47,12 @@ internal class Program
         {
             Console.WriteLine("Ce graphe ne comprte pas de circuit");
         }
+        Console.WriteLine("Chemin le plus court avec Dijkstra depuis " + noeuds_karate[6].Numero + " : ");
+        int[] dijkstra = karate.Dijkstra(noeuds_karate[6]);
+        for(int i = 0; i < dijkstra.Length; i++)
+        {
+            Console.WriteLine(i+1 + " : " + dijkstra[i]);
+        }
         #endregion
         #region 4Avril
         //List<Noeud> noeuds = new List<Noeud>();
