@@ -13,6 +13,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// </summary>
         Noeud depart;
         Noeud arrivee;
+        int poids;
 
         /// <summary>
         /// Constructeur naturel pour la classe lien
@@ -23,6 +24,12 @@ namespace PROJ_1Mars_Koscher_Jouhier
         {
             this.depart = depart;
             this.arrivee = arrivee;
+        }
+        public Lien(Noeud depart, Noeud arrivee, int poids)
+        {
+            this.depart = depart;
+            this.arrivee = arrivee;
+            this.poids = poids;
         }
 
         /// <summary>

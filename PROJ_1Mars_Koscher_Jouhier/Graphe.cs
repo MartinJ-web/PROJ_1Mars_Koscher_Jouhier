@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Net;
@@ -24,9 +26,76 @@ namespace PROJ_1Mars_Koscher_Jouhier
         List<List<Noeud>> liste_adjacence;
         int[,] matrice_adjacence;
         
+        /// <summary>
+        /// Constructeur pour la classe graphe un graphe à partir d'une liste de noeuds et d'un tableau de lien 
+        /// </summary>
+        /// <param name="noeuds"> Liste des noeuds du graphe </param>
+        /// <param name="lignes"> Tableau de liens </param>
+        public Graphe(List<Noeud> noeuds, string[] lignes)
+        {
+            this.noeuds = noeuds;
+            Tri(noeuds);
+            List<Lien> liens = new List<Lien>();
+            for (int i = 0; i < lignes.Length; i++)
+            {
+                string[] ligne = lignes[i].Split(" ");
+                if (ligne.Length == 3)
+                {
+                    Lien lien = new Lien(noeuds[Convert.ToInt32(ligne[0]) - 1], noeuds[Convert.ToInt32(ligne[1]) - 1], Convert.ToInt32(ligne[2]));
+                    liens.Add(lien);
+                }
+                else
+                {
+                    Lien lien = new Lien(noeuds[Convert.ToInt32(ligne[0]) - 1], noeuds[Convert.ToInt32(ligne[1]) - 1]);
+                    liens.Add(lien);
+                }
+            }
+            
+            this.liens = liens;
+            List<List<Noeud>> liste_adjacence = new List<List<Noeud>>();
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                List<Noeud> adjacence = new List<Noeud>();
+                foreach (Lien lien in liens)
+                {
+                    if (lien.Depart.Equals(noeuds[i]))
+                    {
+                        adjacence.Add(lien.Arrivee);
+                    }
+                    if (lien.Arrivee.Equals(noeuds[i]) && lien.Arrivee != lien.Depart)
+                    {
+                        adjacence.Add(lien.Depart);
+                    }
+                }
+                Tri(adjacence);
+                liste_adjacence.Add(adjacence);
+            }
+            this.liste_adjacence = liste_adjacence;
+
+            int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
+            for (int i = 0; i < liste_adjacence.Count; i++)
+            {
+                for (int j = 0; j < liste_adjacence[i].Count; j++)
+                {
+                    int indice = -1;
+                    for (int k = 0; k < noeuds.Count; k++)
+                    {
+                        if (liste_adjacence[i][j].Equals(noeuds[k]))
+                        {
+                            indice = k;
+                            break;
+                        }
+                    }
+                    matrice_adjacence[i, indice] = 1;
+                }
+            }
+            this.matrice_adjacence = matrice_adjacence;
+        }
 
         /// <summary>
         /// Constructeur pour la classe graphe à partir d'un tableau de liens
+        /// La différence par rapport au constructeur précedent est la création des noeuds à partir des liens (pas d'infos supplémentaire que le numéro)
+        /// Les parties sur les liste d'adjacence et les matrices d'adjacence sont similaires
         /// </summary>
         /// <param name="lignes"> Tableau de liens </param>
         public Graphe(string[] lignes)
@@ -38,11 +107,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             {
                 Noeud noeud_depart;
                 Noeud noeud_arrivee;
-                string[] lien_tab = ligne.Split(' ');
+                string[] lien_tab = ligne.Split(" ");
                 if (!nom_noeuds.Contains(lien_tab[0]))
                 {
                     nom_noeuds.Add(lien_tab[0]);
-                    noeud_depart = new Noeud(lien_tab[0]);
+                    noeud_depart = new Noeud(Convert.ToInt32(lien_tab[0]));
                     noeuds.Add(noeud_depart);
                 }
                 else
@@ -50,7 +119,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     int index = -1;
                     for (int i = 0; i < noeuds.Count; i++)
                     {
-                        if (noeuds[i].Nom == lien_tab[0])
+                        if (noeuds[i].Numero == Convert.ToInt32(lien_tab[0]))
                         {
                             index = i;
                         }
@@ -60,7 +129,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 if (!nom_noeuds.Contains(lien_tab[1]))
                 {
                     nom_noeuds.Add(lien_tab[1]);
-                    noeud_arrivee = new Noeud(lien_tab[1]);
+                    noeud_arrivee = new Noeud(Convert.ToInt32(lien_tab[1]));
                     noeuds.Add(noeud_arrivee);
                 }
                 else
@@ -68,15 +137,23 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     int index = -1;
                     for (int i = 0; i < noeuds.Count; i++)
                     {
-                        if (noeuds[i].Nom == lien_tab[1])
+                        if (noeuds[i].Numero == Convert.ToInt32(lien_tab[1]))
                         {
                             index = i;
                         }
                     }
                     noeud_arrivee = noeuds[index];
                 }
-                Lien lien = new Lien(noeud_depart, noeud_arrivee);
-                liens.Add(lien);
+                if (lien_tab.Length == 3)
+                {
+                    Lien lien = new Lien(noeud_depart, noeud_arrivee, Convert.ToInt32(lien_tab[2]));
+                    liens.Add(lien);
+                }
+                else
+                {
+                    Lien lien = new Lien(noeud_depart, noeud_arrivee);
+                    liens.Add(lien);
+                }
             }
             Tri(noeuds);
             this.noeuds = noeuds;
@@ -138,7 +215,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         }
 
         /// <summary>
-        /// Permet de trier la liste de noeuds et la liste d'adjacence (numériquement ou alphabétiquement)
+        /// Permet de trier la liste de noeuds et la liste d'adjacence numériquement
         /// </summary>
         /// <param name="noeuds"> Liste de noeuds à trier </param>
         /// <param name="debut"> Début de la liste à trier </param>
@@ -188,34 +265,17 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 {
                     if ((indD < droite.Length) && (indG < gauche.Length))
                     {
-                        bool nombres = int.TryParse(noeuds[0].Nom, out int nom);
-                        if (nombres)
+                        if (Convert.ToInt32(gauche[indG].Numero) < Convert.ToInt32(droite[indD].Numero))
                         {
-                            if (Convert.ToInt32(gauche[indG].Nom) < Convert.ToInt32(droite[indD].Nom))
-                            {
-                                noeuds[i] = gauche[indG++];
-                            }
-                            else
-                            {
-                                noeuds[i] = droite[indD++];
-                            }
+                            noeuds[i] = gauche[indG++];
                         }
                         else
                         {
-                            if (gauche[indG].Nom.CompareTo(droite[indD].Nom) < 0)
-                            {
-                                noeuds[i] = gauche[indG++];
-                            }
-                            else
-                            {
-                                noeuds[i] = droite[indD++];
-                            }
+                            noeuds[i] = droite[indD++];
                         }
                     }
                     else if (indD >= droite.Length) noeuds[i] = gauche[indG++];
                     else if (indG >= gauche.Length) noeuds[i] = droite[indD++];
-
-
                 }
 
             }
@@ -224,15 +284,15 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <summary>
         /// Affiche la liste et la matrice d'adjacence du graphe
         /// </summary>
-        public void ToString()
+        public void toString()
         {
             Console.WriteLine("Liste d'adjacence :\n");
             for(int i = 0; i < liste_adjacence.Count; i++)
             {
-                Console.Write(noeuds[i].Nom + " : ");
+                Console.Write(noeuds[i].Numero + " : ");
                 for (int j = 0; j < liste_adjacence[i].Count; j++)
                 {
-                    Console.Write( liste_adjacence[i][j].Nom + " ");
+                    Console.Write( liste_adjacence[i][j].Numero + " ");
                 }
                 Console.WriteLine("");
             }
@@ -277,7 +337,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 }
                 ordre.Add(depart);
                 visite.Push(depart);
-                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(depart.Nom) - 1];
+                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(depart.Numero) - 1];
                 foreach (Noeud successeur in successeurs)
                 {
                     DFS_Rec(successeur, visite, ordre);
@@ -299,7 +359,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             while (visite.Count > 0)
             {
                 Noeud suivant = visite.Dequeue();
-                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(suivant.Nom) - 1];
+                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(suivant.Numero) - 1];
                 foreach (Noeud successeur in successeurs)
                 {
                     if (!visite.Contains(successeur) && !ordre.Contains(successeur))
@@ -332,7 +392,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         {
             foreach(Noeud noeud in noeuds)
             {
-                noeud.Pred = null;
+                noeud.Pred = -1;
             }
             List<Noeud> circuit = new List<Noeud>();
             Stack<Noeud> visite = new Stack<Noeud>();
@@ -348,13 +408,13 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     break;
                 }
                 circuit.Add(noeud);
-                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(noeud.Nom) - 1];
+                List<Noeud> successeurs = liste_adjacence[Convert.ToInt32(noeud.Numero) - 1];
                 foreach (Noeud successeur in successeurs)
                 {
-                    if (successeur.Nom != noeud.Pred)
+                    if (successeur.Numero != noeud.Pred)
                     {
                         visite.Push(successeur);
-                        successeur.Pred = noeud.Nom;
+                        successeur.Pred = noeud.Numero;
                     }
                 }
             }
@@ -366,7 +426,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 {
                     index_a_supprimer.Add(i);
                 }
-                List<string> predecesseurs = new List<string>();
+                List<int> predecesseurs = new List<int>();
                 for(int i = 0; i < circuit.Count; i++)
                 {
                     predecesseurs.Add(circuit[i].Pred);
@@ -401,7 +461,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// Génère et ouvre une image représentant le graphe
         /// </summary>
         /// <exception cref="NotSupportedException"> Occure si le système d'exploitation n'est pas reconnu (empêche d'ouvrir l'image) </exception>
-        public void AfficheGraphe()
+        public void AfficheGrapheCercle()
         {
             int width = 1080;
             int height = 1080;
@@ -439,7 +499,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     foreach (var noeud in noeuds)
                     {
                         canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
-                        canvas.DrawText(noeud.Nom, noeud.X - 8, noeud.Y + 8, textPaint);
+                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 8, noeud.Y + 8, textPaint);
                     }
                 }
 
@@ -453,6 +513,129 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
 
             //Ouvir le graphe
+            string cheminFichier = "graphe.png";
+            string commandeOuvrir;
+
+            if (OperatingSystem.IsWindows())
+            {
+                commandeOuvrir = cheminFichier;
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                commandeOuvrir = $"xdg-open {cheminFichier}";
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                commandeOuvrir = $"open {cheminFichier}";
+            }
+            else
+            {
+                Console.WriteLine("l'image du graphe à été sauvegardé sous le nom graphe.png dans /bin/Debug/net");
+                throw new NotSupportedException("Système d'exploitation non pris en charge.");
+
+            }
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = commandeOuvrir,
+                UseShellExecute = true
+            });
+        }
+
+        public void AfficheGraphe()
+        {
+            //Counter à l'étalement horizontal : - largeur/longitude * coef
+            int width = 2865; //1910*1.5
+            int height = 1485; //990*1.5
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                noeuds[i].X -= (float)2.252;
+                noeuds[i].X *= 15000;
+                noeuds[i].Y -= (float)48.81;
+                noeuds[i].Y *= 15000;
+                if (noeuds[i].Numero == 86)
+                { noeuds[i].X -= 20; noeuds[i].Y += 30; }
+                if (noeuds[i].Numero == 88)
+                { noeuds[i].X -= 40; }
+                if (noeuds[i].Numero == 91)
+                { noeuds[i].X += 3; noeuds[i].Y += 1; }
+                if (noeuds[i].Numero == 92)
+                { noeuds[i].X += 3; noeuds[i].Y += 1; }
+            }
+            using (var bitmap = new SKBitmap(width, height))
+            using (var canvas = new SKCanvas(bitmap))
+            {
+                canvas.Clear(SKColors.White);
+                using (var edgePaint = new SKPaint { Color = SKColors.Purple, StrokeWidth = 4, IsAntialias = true, Style = SKPaintStyle.Stroke })
+                using (var nodePaint = new SKPaint { Color = SKColors.Black, IsAntialias = true })
+                using (var textPaint = new SKPaint { Color = SKColors.Black, TextSize = 15, IsAntialias = true })
+                {
+                    foreach (var lien in liens)
+                    {
+                        var fromNode = noeuds.Find(n => n.Equals(lien.Depart));
+                        var toNode = noeuds.Find(n => n.Equals(lien.Arrivee));
+                        if (fromNode != null && toNode != null)
+                        {
+                            string ligne = fromNode.Nom.Split(", ")[0];
+                            switch (ligne)
+                            {
+                                case "1":
+                                    edgePaint.Color = SKColor.Parse("#FFCE00"); break;
+                                case "2":
+                                    edgePaint.Color = SKColor.Parse("#0064B0"); break;
+                                case "3": 
+                                    edgePaint.Color = SKColor.Parse("#9F9825"); break;
+                                case "4":
+                                    edgePaint.Color = SKColor.Parse("#C04191"); break;
+                                case "5":
+                                    edgePaint.Color = SKColor.Parse("#F28E42"); break;
+                                case "6":
+                                    edgePaint.Color = SKColor.Parse("#83C491"); break;
+                                case "7":
+                                    edgePaint.Color = SKColor.Parse("#F3A4BA"); break;
+                                case "8":
+                                    edgePaint.Color = SKColor.Parse("#CEADD2"); break;
+                                case "9":
+                                    edgePaint.Color = SKColor.Parse("#D5C900"); break;
+                                case "10":
+                                    edgePaint.Color = SKColor.Parse("#E3B32A"); break;
+                                case "11":
+                                    edgePaint.Color = SKColor.Parse("#8D5E2A"); break;
+                                case "12":
+                                    edgePaint.Color = SKColor.Parse("#00814F"); break;
+                                case "13":
+                                    edgePaint.Color = SKColor.Parse("#98D4E2"); break;
+                                case "14":
+                                    edgePaint.Color = SKColor.Parse("#662483"); break;
+                                case "3bis":
+                                    edgePaint.Color = SKColor.Parse("#98D4E2"); break;
+                                case "7bis":
+                                    edgePaint.Color = SKColor.Parse("#83C491"); break;
+                                default :
+                                    edgePaint.Color = SKColors.Purple; break;
+                            }
+                            canvas.DrawLine(fromNode.X, 1485 - fromNode.Y, toNode.X, 1485 - toNode.Y, edgePaint);
+                        }
+                    }
+
+                    foreach (var noeud in noeuds)
+                    {
+                        if (noeud.Numero != 91 && noeud.Numero != 92)
+                        {
+                            nodePaint.Color = SKColors.Black;
+                            canvas.DrawCircle(noeud.X, 1485 - noeud.Y, 10, nodePaint);
+                            nodePaint.Color = SKColors.White;
+                            canvas.DrawCircle(noeud.X, 1485 - noeud.Y, 7, nodePaint);
+                            canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 14, 1485 - noeud.Y + 21, textPaint);
+                        }
+                    }
+                }
+                using (var image = SKImage.FromBitmap(bitmap))
+                using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                using (var stream = System.IO.File.OpenWrite("graphe.png"))
+                {
+                    data.SaveTo(stream);
+                }
+            }
             string cheminFichier = "graphe.png";
             string commandeOuvrir;
 
