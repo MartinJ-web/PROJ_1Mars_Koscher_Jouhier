@@ -73,21 +73,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             this.liste_adjacence = liste_adjacence;
 
             int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
-            for (int i = 0; i < liste_adjacence.Count; i++)
+            foreach (Lien lien in liens)
             {
-                for (int j = 0; j < liste_adjacence[i].Count; j++)
-                {
-                    int indice = -1;
-                    for (int k = 0; k < noeuds.Count; k++)
-                    {
-                        if (liste_adjacence[i][j].Equals(noeuds[k]))
-                        {
-                            indice = k;
-                            break;
-                        }
-                    }
-                    matrice_adjacence[i, indice] = 1;
-                }
+                matrice_adjacence[lien.Depart.Numero - 1, lien.Arrivee.Numero - 1] = lien.Poids;
+                matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
+
             }
             this.matrice_adjacence = matrice_adjacence;
         }
@@ -179,22 +169,28 @@ namespace PROJ_1Mars_Koscher_Jouhier
             this.liste_adjacence = liste_adjacence;
 
             int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
-            for (int i = 0; i < liste_adjacence.Count; i++)
+            foreach (Lien lien in liens)
             {
-                for (int j = 0; j < liste_adjacence[i].Count; j++)
-                {
-                    int indice = -1;
-                    for(int k = 0; k < noeuds.Count; k++)
-                    {
-                        if (liste_adjacence[i][j].Equals(noeuds[k]))
-                        {
-                            indice = k;
-                            break;
-                        }
-                    }
-                    matrice_adjacence[i, indice] = 1;
-               }
+                matrice_adjacence[lien.Depart.Numero - 1, lien.Arrivee.Numero - 1] = lien.Poids;
+                matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
+
             }
+            //for (int i = 0; i < liste_adjacence.Count; i++)
+            //{
+            //    for (int j = 0; j < liste_adjacence[i].Count; j++)
+            //    {
+            //        int indice = -1;
+            //        for(int k = 0; k < noeuds.Count; k++)
+            //        {
+            //            if (liste_adjacence[i][j].Equals(noeuds[k]))
+            //            {
+            //                indice = k;
+            //                break;
+            //            }
+            //        }
+            //        matrice_adjacence[i, indice] = 1;
+            //   }
+            //}
             this.matrice_adjacence = matrice_adjacence;
         }
 
@@ -281,50 +277,50 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
-        public void Dijkstra(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
-        {
-            List<Noeud> sommets_visites = null;
-            List<(Noeud noeud, int)> distances = new List<(Noeud noeud, int)>();//distance de noeud par rapport à noeuddepart
-            distances = null;
-            foreach (Noeud noeud in noeuds)
-            {
-                if (noeud == noeud_depart) { distances.Add((noeud, 0)); }
-                else { distances.Add((noeud, int.MaxValue)); }
+        //public void Dijkstra(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
+        //{
+        //    List<Noeud> sommets_visites = null;
+        //    List<(Noeud noeud, int)> distances = new List<(Noeud noeud, int)>();//distance de noeud par rapport à noeuddepart
+        //    distances = null;
+        //    foreach (Noeud noeud in noeuds)
+        //    {
+        //        if (noeud == noeud_depart) { distances.Add((noeud, 0)); }
+        //        else { distances.Add((noeud, int.MaxValue)); }
 
-            }//initialisation distances
-
-
-            int noeud_actuel = noeud_depart;//depart
-
-            while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
-            {
+        //    }//initialisation distances
 
 
-                sommets_visites.Add(noeud_actuel);// s'actualise à chaque itération
-                foreach (Noeud noeud in noeuds)
-                {
-                    //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
-                    if (matrice_adjacence[noeud_actuel, noeud] == 1)
-                    {
-                        sommets_visites.Add((Noeud)noeud);
-                        distances.Add((noeud,))
-                    }
+        //    int noeud_actuel = noeud_depart;//depart
+
+        //    while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
+        //    {
 
 
-
-                }
-                //prendre dist min et réiterer sur noeud actuel
-
-            }
+        //        sommets_visites.Add(noeud_actuel);// s'actualise à chaque itération
+        //        foreach (Noeud noeud in noeuds)
+        //        {
+        //            //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
+        //            if (matrice_adjacence[noeud_actuel, noeud] == 1)
+        //            {
+        //                sommets_visites.Add((Noeud)noeud);
+        //                distances.Add((noeud,))
+        //            }
 
 
 
-        }
+        //        }
+        //        //prendre dist min et réiterer sur noeud actuel
 
-        public void BellmanFord(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
-        {
+        //    }
 
-        }
+
+
+        //}
+
+        //public void BellmanFord(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
+        //{
+
+        //}
 
         /// <summary>
         /// Affiche la liste et la matrice d'adjacence du graphe
