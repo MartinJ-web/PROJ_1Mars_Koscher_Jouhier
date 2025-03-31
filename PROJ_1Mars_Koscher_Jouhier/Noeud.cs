@@ -14,24 +14,40 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <summary>
         /// Attribbuts pour la classe Noeud
         /// </summary>
+        int numero;
         string nom;
-        string pred;
+        int pred;
         float x;
         float y;
 
-        /// <summary>
-        /// Constructeur à partir du nom du lien
-        /// Si besoin, possibilité d'ajouter un attribut numéro (pour avoir un nom et un identifiant au lien)
-        /// </summary>
-        /// <param name="nom"> Nom du noeud </param>
-        public Noeud(string nom)
+
+        public Noeud(int numero, string nom, float x, float y)
         {
+            this.numero = numero;
             this.nom = nom;
+            this.x = x;
+            this.y = y;
+        }
+
+
+
+        /// <summary>
+        /// Constructeur à partir du numero du lien
+        /// </summary>
+        /// <param name="numero"> numero du noeud </param>
+        public Noeud(int numero)
+        {
+            this.numero = numero;
         }
         
         /// <summary>
-        /// Propriété pour le nom du noeud
+        /// Propriété pour le numero du noeud
         /// </summary>
+        public int Numero
+        {
+            get { return numero; }
+        }
+
         public string Nom
         {
             get { return nom; }
@@ -40,7 +56,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <summary>
         /// Propriétés pour le prédecesseur du noeud
         /// </summary>
-        public string Pred
+        public int Pred
         {
             get { return pred; }
             set { pred = value; }
@@ -65,13 +81,12 @@ namespace PROJ_1Mars_Koscher_Jouhier
         }
 
         /// <summary>
-        /// Methode ToStrong pour un noeud
-        /// Possibilité de retourner le numero du lien s'il existe
+        /// Methode ToString pour un noeud
         /// </summary>
-        /// <returns> nom du lien (et numero) s</returns>
-        public string ToString()
+        /// <returns> Numero du lien s</returns>
+        public string toString()
         {
-            return nom; 
+            return Convert.ToString(numero); 
         }
     }
 }
