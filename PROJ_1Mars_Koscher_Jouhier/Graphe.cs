@@ -175,22 +175,6 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
 
             }
-            //for (int i = 0; i < liste_adjacence.Count; i++)
-            //{
-            //    for (int j = 0; j < liste_adjacence[i].Count; j++)
-            //    {
-            //        int indice = -1;
-            //        for(int k = 0; k < noeuds.Count; k++)
-            //        {
-            //            if (liste_adjacence[i][j].Equals(noeuds[k]))
-            //            {
-            //                indice = k;
-            //                break;
-            //            }
-            //        }
-            //        matrice_adjacence[i, indice] = 1;
-            //   }
-            //}
             this.matrice_adjacence = matrice_adjacence;
         }
 
@@ -288,19 +272,17 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 if (noeud == noeud_depart) { distances.Add(noeud, 0); }
                 else { distances.Add(noeud, int.MaxValue); }
 
-        //    }//initialisation distances
+              }//initialisation distances
 
 
             Noeud noeud_actuel = noeud_depart;//depart
 
-        //    while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
-        //    {
-
+            while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
+            {
                 sommets_traites.Add(noeud_actuel);
                 sommets_visites.Add(noeud_actuel);
                 foreach (Noeud noeud in noeuds)
                 {
-
                     if (!sommets_traites.Contains(noeud))
                     {
                         //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
@@ -318,33 +300,24 @@ namespace PROJ_1Mars_Koscher_Jouhier
                                     distances.Remove(noeud);
                                     distances.Add(noeud, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
                                 }
-
                             }
+                        }
+                    }
+                }
+                int min = int.MaxValue;
+                foreach (Noeud noeud in sommets_visites)
+                {
+                    if (!sommets_traites.Contains(noeud))
+                    {
+                        if (distances.ElementAt(distances.IndexOfKey(noeud)).Value < min)
+                        {
+                            noeud_actuel = noeud;
+                            min = distances.ElementAt(distances.IndexOfKey(noeud)).Value;
 
                         }
                     }
-             
                 }
-
-                int min = int.MaxValue;
-                foreach (Noeud noeud in sommets_visites)
-                if (!sommets_traites.Contains(noeud))
-                {
-                     
-                     if (distances.ElementAt(distances.IndexOfKey(noeud)).Value < min)
-                     {
-                         noeud_actuel = noeud;
-                         min = distances.ElementAt(distances.IndexOfKey(noeud)).Value;
-                         
-                     }
-                }
-                
-
-
             }
-
-            }
-
         }
 
         public void BellmanFord(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
