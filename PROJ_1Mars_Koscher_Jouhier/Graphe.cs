@@ -261,7 +261,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
-        public void Dijkstra(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
+        public void Dijkstra(Noeud noeud_depart)
         {
             List<Noeud> sommets_visites = new List<Noeud>();
             List<Noeud> sommets_traites = new List<Noeud>();
@@ -272,7 +272,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 if (noeud == noeud_depart) { distances.Add(noeud, 0); }
                 else { distances.Add(noeud, int.MaxValue); }
 
-              }//initialisation distances
+            }//initialisation distances
 
 
             Noeud noeud_actuel = noeud_depart;//depart
@@ -320,8 +320,26 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
-        public void BellmanFord(List<Noeud> noeuds, List<List<Noeud>> liste_adjacence, Noeud noeud_depart)
+        public void BellmanFord(Noeud noeud_depart, Noeud sommet_depart)
         {
+            int[,] tab predecesseur = new int[noeuds.Count];
+            SortedList<Noeud, int> distances = new SortedList<Noeud, int>();//distance de noeud par rapport à noeud_depart
+            
+
+            foreach (Noeud noeud in noeuds)
+            {
+                if (noeud == noeud_depart) { distances.Add(noeud, 0); }
+                else { distances.Add(noeud, int.MaxValue); }
+
+            }//initialisation distances
+
+            for (int u = 0; u < noeuds.Count-1; i++)
+            {
+                for (int v = 0; v < liens.Count - 1; j++)
+                {
+
+                }
+            }
 
         }
 
