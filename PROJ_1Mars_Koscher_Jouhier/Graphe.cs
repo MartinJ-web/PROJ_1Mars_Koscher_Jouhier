@@ -179,7 +179,6 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 }
                 Tri(adjacence);
                 liste_adjacence.Add(adjacence);
-                w
             }
             this.liste_adjacence = liste_adjacence;
 
@@ -360,7 +359,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return predecesseursN;
         }
 
-        public int[] BellmanFord(Noeud noeud_depart)
+        public int[] BellmanFord(Noeud<T> noeud_depart)
         {
             
             int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
@@ -401,7 +400,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
     
 
 
-        public List<int> Pred_BellmanFord(Noeud noeud_depart, Noeud noeud_arrivee)
+        public List<int> Pred_BellmanFord(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
             List<int> predecesseurs = new List<int>();
             BellmanFord(noeud_arrivee);
@@ -415,7 +414,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return predecesseurs;
         }
 
-        public int[,] FloydWarshall(Noeud noeud)//associe distances entre toutes les pairs de sommets
+        public int[,] FloydWarshall(Noeud<T> noeud)//associe distances entre toutes les pairs de sommets
         {
             int[,] W = new int[matrice_adjacence.GetLength(0), matrice_adjacence.GetLength(1)];
             
@@ -451,7 +450,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return W;//matrice des chemins les plus courts des sommets i vers j
         }
 
-        public List<int> Pred_FloydWarshall(Noeud noeud_depart, Noeud noeud_arrivee)
+        public List<int> Pred_FloydWarshall(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
             List<int> predecesseurs = new List<int>();
             FloydWarshall(noeud_arrivee);

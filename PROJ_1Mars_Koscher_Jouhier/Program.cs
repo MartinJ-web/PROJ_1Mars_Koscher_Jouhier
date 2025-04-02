@@ -80,10 +80,6 @@ internal class Program
         //    Console.WriteLine("Il n'y a pas de chemin car le graphe n'est pas connexe");
         //}
 
-
-
-
-
         //int[,] W = karate.FloydWarshall();
         //for (int i = 0; i < W.GetLength(0); i++)
         //{
@@ -156,7 +152,7 @@ internal class Program
         #endregion
         #endregion
         #region Interface
-
+        #endregion
     }
 
     public static void AfficheMetro(Graphe<Station> metro, List<Noeud<Station>> chemin = null)
@@ -326,7 +322,7 @@ internal class Program
         }
     }
 
-    static void OuvrirImage(string cheminFichier = "graphe.png")
+    public static void OuvrirImage(string cheminFichier = "graphe.png")
     {
         string commandeOuvrir;
 
