@@ -14,6 +14,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         Noeud depart;
         Noeud arrivee;
         int poids;
+        bool sens;
 
         /// <summary>
         /// Constructeur naturel pour la classe lien

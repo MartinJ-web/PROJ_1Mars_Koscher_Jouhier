@@ -47,6 +47,18 @@ internal class Program
         {
             Console.WriteLine("Ce graphe ne comprte pas de circuit");
         }
+        Console.WriteLine("Longueur des chemins les plus courts avec Dijkstra depuis " + noeuds_karate[6].Numero + " : ");
+        int[] dijkstra = karate.Dijkstra(noeuds_karate[6]);
+        for (int i = 0; i < dijkstra.Length; i++)
+        {
+            Console.WriteLine(i + 1 + " : " + dijkstra[i]);
+        }
+        Console.Write("Chemin le plus court avec Dijkstra depuis " + noeuds_karate[2].Numero + " vers " + noeuds_karate[6].Numero + " : ");
+        List<int> pcc_dijkstra = karate.PCC_Dijkstra(noeuds_karate[2], noeuds_karate[6]);
+        for (int i = 0; i < pcc_dijkstra.Count; i++)
+        {
+            Console.Write(pcc_dijkstra[i] + " ");
+        }
         #endregion
         #region 4Avril
         //List<Noeud> noeuds = new List<Noeud>();
@@ -59,7 +71,6 @@ internal class Program
         //}
         //string[] liens = File.ReadAllLines("PROJ_Lien_Station.txt");
         //Graphe metro = new Graphe(noeuds, liens);
-        //metro.toString();
         //metro.AfficheGraphe();
         #endregion
     }

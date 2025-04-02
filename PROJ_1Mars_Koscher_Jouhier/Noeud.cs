@@ -14,6 +14,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <summary>
         /// Attribbuts pour la classe Noeud
         /// </summary>
+        int numero;
         string nom;
         int pred;
         float x;

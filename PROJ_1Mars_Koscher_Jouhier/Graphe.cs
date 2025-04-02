@@ -261,45 +261,44 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
-        public void Dijkstra(Noeud noeud_depart)
+        public int[] Dijkstra(Noeud noeud_depart)
         {
             List<Noeud> sommets_visites = new List<Noeud>();
             List<Noeud> sommets_traites = new List<Noeud>();
-            SortedList<Noeud, int> distances = new SortedList<Noeud, int>();//distance de noeud par rapport à noeuddepart
-
-            foreach (Noeud noeud in noeuds)
+            int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
+            for(int i = 0; i < noeuds.Count; i++)
             {
-                if (noeud == noeud_depart) { distances.Add(noeud, 0); }
-                else { distances.Add(noeud, int.MaxValue); }
-
+                if (noeuds[i] == noeud_depart)
+                {
+                    distances[i] = 0;
+                }
+                else
+                {
+                    distances[i] = int.MaxValue;
+                }
             }//initialisation distances
-
-
             Noeud noeud_actuel = noeud_depart;//depart
-
-            while (sommets_visites.Count < noeuds.Count)// vérifier condition sur sommets_visites
+            sommets_visites.Add(noeud_actuel);
+            while (sommets_traites.Count < sommets_visites.Count)// vérifier condition sur sommets_visites
             {
                 sommets_traites.Add(noeud_actuel);
-                sommets_visites.Add(noeud_actuel);
-                foreach (Noeud noeud in noeuds)
+                for(int i = 0; i < noeuds.Count; i++)
                 {
-                    if (!sommets_traites.Contains(noeud))
+                    if (!sommets_traites.Contains(noeuds[i]) && matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] > 0)
                     {
                         //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
-                        if (matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] > 0)
+                        if (!sommets_visites.Contains(noeuds[i]))//s'il n'est pas encore visité
                         {
-                            if (!sommets_visites.Contains(noeud))//s'il n'est pas encore visité
+                            sommets_visites.Add(noeuds[i]);
+                            distances[i] = matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1];
+                            noeuds[i].Pred = noeud_actuel.Numero;
+                        }
+                        else
+                        {
+                            if(distances[i] > matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1])
                             {
-                                sommets_visites.Add((Noeud)noeud);
-                                distances.Add(noeud_actuel, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
-                            }
-                            else
-                            {
-                                if (distances.ElementAt(distances.IndexOfKey(noeud)).Value > matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value)
-                                {
-                                    distances.Remove(noeud);
-                                    distances.Add(noeud, matrice_adjacence[noeud_actuel.Numero - 1, noeud.Numero - 1] + distances.ElementAt(distances.IndexOfKey(noeud_actuel)).Value);
-                                }
+                                distances[i] = matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1];
+                                noeuds[i].Pred = noeud_actuel.Numero;
                             }
                         }
                     }
@@ -307,17 +306,28 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 int min = int.MaxValue;
                 foreach (Noeud noeud in sommets_visites)
                 {
-                    if (!sommets_traites.Contains(noeud))
-                    {
-                        if (distances.ElementAt(distances.IndexOfKey(noeud)).Value < min)
-                        {
-                            noeud_actuel = noeud;
-                            min = distances.ElementAt(distances.IndexOfKey(noeud)).Value;
-
-                        }
+                    if (!sommets_traites.Contains(noeud) && distances[noeud.Numero - 1] < min)
+                    { 
+                        noeud_actuel = noeud;
+                        min = distances[noeud.Numero - 1] ;
                     }
                 }
             }
+            return distances;
+        }
+
+        public List<int> PCC_Dijkstra(Noeud noeud_depart, Noeud noeud_arrivee)
+        {
+            List<int> predecesseurs = new List<int>();
+            Dijkstra(noeud_arrivee);
+            int predecesseur = noeud_depart.Numero;
+            while (predecesseur != noeud_arrivee.Numero)
+            {
+                predecesseurs.Add(predecesseur);
+                predecesseur = noeuds[predecesseur - 1].Pred;
+            }
+            predecesseurs.Add(noeud_arrivee.Numero);
+            return predecesseurs;
         }
 
         public void BellmanFord(Noeud noeud_depart, Noeud sommet_depart)
@@ -542,8 +552,10 @@ namespace PROJ_1Mars_Koscher_Jouhier
             {
                 canvas.Clear(SKColors.White);
 
-                using (var edgePaint = new SKPaint { Color = SKColors.Purple, StrokeWidth = 2, IsAntialias = true, Style = SKPaintStyle.Stroke })
+                using (var edgePaint = new SKPaint { Color = SKColors.MediumPurple, StrokeWidth = 3, IsAntialias = true, Style = SKPaintStyle.Stroke })
                 using (var nodePaint = new SKPaint { Color = SKColors.LightBlue, IsAntialias = true })
+                using (var weightPaint = new SKPaint { Color = SKColors.MediumPurple, IsAntialias = true })
+                using (var textPaint2 = new SKPaint { Color = SKColors.Black, TextSize = 16, IsAntialias = true })
                 using (var textPaint = new SKPaint { Color = SKColors.Black, TextSize = 20, IsAntialias = true })
                 {
                     // Dessiner les arêtes
@@ -555,13 +567,20 @@ namespace PROJ_1Mars_Koscher_Jouhier
                         {
                             canvas.DrawLine(fromNode.X, fromNode.Y, toNode.X, toNode.Y, edgePaint);
                         }
+                        float midX = (fromNode.X + toNode.X) / 2;
+                        float midY = (fromNode.Y + toNode.Y) / 2;
+                        midX = (fromNode.X + midX) / 2;
+                        midY = (fromNode.Y + midY) / 2;
+                        // Afficher le poids de l'arc
+                        canvas.DrawRect(midX, midY - 22, 22, 22, weightPaint);
+                        canvas.DrawText(Convert.ToString(lien.Poids), midX + 4, midY - 5, textPaint2);
                     }
 
                     // Dessiner les nœuds
                     foreach (var noeud in noeuds)
                     {
                         canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
-                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 8, noeud.Y + 8, textPaint);
+                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X, noeud.Y, textPaint);
                     }
                 }
 
@@ -608,20 +627,42 @@ namespace PROJ_1Mars_Koscher_Jouhier
             //Counter à l'étalement horizontal : - largeur/longitude * coef
             int width = 2865; //1910*1.5
             int height = 1485; //990*1.5
+            List<Noeud> noeuds_uniques = new List<Noeud>();
             for (int i = 0; i < noeuds.Count; i++)
             {
+                bool contains = false;
+                foreach(Noeud noeud in noeuds_uniques)
+                {
+                    if(noeud.Nom.Split(", ")[1] == noeuds[i].Nom.Split(", ")[1])
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains)
+                {
+                    noeuds_uniques.Add(noeuds[i]);
+                }
                 noeuds[i].X -= (float)2.252;
                 noeuds[i].X *= 15000;
                 noeuds[i].Y -= (float)48.81;
                 noeuds[i].Y *= 15000;
                 if (noeuds[i].Numero == 86)
-                { noeuds[i].X -= 20; noeuds[i].Y += 30; }
+                { noeuds[i].Y += 10; }
                 if (noeuds[i].Numero == 88)
-                { noeuds[i].X -= 40; }
+                { noeuds[i].X -= 10; }
                 if (noeuds[i].Numero == 91)
                 { noeuds[i].X += 3; noeuds[i].Y += 1; }
                 if (noeuds[i].Numero == 92)
                 { noeuds[i].X += 3; noeuds[i].Y += 1; }
+                if (noeuds[i].Numero == 34)
+                { noeuds[i].Y -= (float)1.5; }
+                if (noeuds[i].Numero == 35)
+                { noeuds[i].Y -= (float)1.5; }
+                if (noeuds[i].Numero == 99)
+                { noeuds[i].Y += (float)1.5; }
+                if (noeuds[i].Numero == 100)
+                { noeuds[i].Y += (float)1.5; }
             }
             using (var bitmap = new SKBitmap(width, height))
             using (var canvas = new SKCanvas(bitmap))
@@ -635,53 +676,50 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     {
                         var fromNode = noeuds.Find(n => n.Equals(lien.Depart));
                         var toNode = noeuds.Find(n => n.Equals(lien.Arrivee));
-                        if (fromNode != null && toNode != null)
+                        string ligne = fromNode.Nom.Split(", ")[0];
+                        switch (ligne)
                         {
-                            string ligne = fromNode.Nom.Split(", ")[0];
-                            switch (ligne)
-                            {
-                                case "1":
-                                    edgePaint.Color = SKColor.Parse("#FFCE00"); break;
-                                case "2":
-                                    edgePaint.Color = SKColor.Parse("#0064B0"); break;
-                                case "3": 
-                                    edgePaint.Color = SKColor.Parse("#9F9825"); break;
-                                case "4":
-                                    edgePaint.Color = SKColor.Parse("#C04191"); break;
-                                case "5":
-                                    edgePaint.Color = SKColor.Parse("#F28E42"); break;
-                                case "6":
-                                    edgePaint.Color = SKColor.Parse("#83C491"); break;
-                                case "7":
-                                    edgePaint.Color = SKColor.Parse("#F3A4BA"); break;
-                                case "8":
-                                    edgePaint.Color = SKColor.Parse("#CEADD2"); break;
-                                case "9":
-                                    edgePaint.Color = SKColor.Parse("#D5C900"); break;
-                                case "10":
-                                    edgePaint.Color = SKColor.Parse("#E3B32A"); break;
-                                case "11":
-                                    edgePaint.Color = SKColor.Parse("#8D5E2A"); break;
-                                case "12":
-                                    edgePaint.Color = SKColor.Parse("#00814F"); break;
-                                case "13":
-                                    edgePaint.Color = SKColor.Parse("#98D4E2"); break;
-                                case "14":
-                                    edgePaint.Color = SKColor.Parse("#662483"); break;
-                                case "3bis":
-                                    edgePaint.Color = SKColor.Parse("#98D4E2"); break;
-                                case "7bis":
-                                    edgePaint.Color = SKColor.Parse("#83C491"); break;
-                                default :
-                                    edgePaint.Color = SKColors.Purple; break;
-                            }
-                            canvas.DrawLine(fromNode.X, 1485 - fromNode.Y, toNode.X, 1485 - toNode.Y, edgePaint);
+                            case "1":
+                                edgePaint.Color = SKColor.Parse("#FFCE00"); break;
+                            case "2":
+                                edgePaint.Color = SKColor.Parse("#0064B0"); break;
+                            case "3": 
+                                edgePaint.Color = SKColor.Parse("#9F9825"); break;
+                            case "4":
+                                edgePaint.Color = SKColor.Parse("#C04191"); break;
+                            case "5":
+                                edgePaint.Color = SKColor.Parse("#F28E42"); break;
+                            case "6":
+                                edgePaint.Color = SKColor.Parse("#83C491"); break;
+                            case "7":
+                                edgePaint.Color = SKColor.Parse("#F3A4BA"); break;
+                            case "8":
+                                edgePaint.Color = SKColor.Parse("#CEADD2"); break;
+                            case "9":
+                                edgePaint.Color = SKColor.Parse("#D5C900"); break;
+                            case "10":
+                                edgePaint.Color = SKColor.Parse("#E3B32A"); break;
+                            case "11":
+                                edgePaint.Color = SKColor.Parse("#8D5E2A"); break;
+                            case "12":
+                                edgePaint.Color = SKColor.Parse("#00814F"); break;
+                            case "13":
+                                edgePaint.Color = SKColor.Parse("#98D4E2"); break;
+                            case "14":
+                                edgePaint.Color = SKColor.Parse("#662483"); break;
+                            case "3bis":
+                                edgePaint.Color = SKColor.Parse("#98D4E2"); break;
+                            case "7bis":
+                                edgePaint.Color = SKColor.Parse("#83C491"); break;
+                            default :
+                                edgePaint.Color = SKColors.Purple; break;
                         }
+                        canvas.DrawLine(fromNode.X, 1485 - fromNode.Y, toNode.X, 1485 - toNode.Y, edgePaint);
                     }
 
                     foreach (var noeud in noeuds)
                     {
-                        if (noeud.Numero != 91 && noeud.Numero != 92)
+                        if (noeuds_uniques.Contains(noeud))
                         {
                             nodePaint.Color = SKColors.Black;
                             canvas.DrawCircle(noeud.X, 1485 - noeud.Y, 10, nodePaint);
