@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using PROJ_1Mars_Koscher_Jouhier;
 using SkiaSharp;
 
 
@@ -178,6 +179,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 }
                 Tri(adjacence);
                 liste_adjacence.Add(adjacence);
+                w
             }
             this.liste_adjacence = liste_adjacence;
 
@@ -302,7 +304,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 {
                     if (!sommets_traites.Contains(noeuds[i]) && matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] > 0)
                     {
-                        //calculer dist noeud actuel - noeuds ?? où sont les poids des noeuds ? faire l'addition des liens : trouver chemin
+                        
                         if (!sommets_visites.Contains(noeuds[i]))//s'il n'est pas encore visité
                         {
                             sommets_visites.Add(noeuds[i]);
@@ -358,29 +360,112 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return predecesseursN;
         }
 
-        public void BellmanFord(Noeud<T> noeud_depart)
+        public int[] BellmanFord(Noeud noeud_depart)
         {
+            
+            int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
 
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                if (noeuds[i] == noeud_depart)
+                {
+                    distances[i] = 0;
+                }
+                else
+                {
+                    distances[i] = int.MaxValue;
+                }
+            }
+
+            for (int i = 0; i < noeuds.Count - 1; i++)
+            {
+                bool modif = false;
+                for (int j = 0; j < liens.Count - 1; j++)
+                {
+                    if (distances[liens[j].Depart.Numero - 1] + matrice_adjacence[liens[j].Depart.Numero - 1, liens[j].Arrivee.Numero - 1] < distances[liens[j].Arrivee.Numero - 1])
+                    {
+
+                        distances[liens[j].Arrivee.Numero - 1] = distances[liens[j].Arrivee.Numero - 1] + matrice_adjacence[liens[j].Depart.Numero - 1, liens[j].Arrivee.Numero - 1];
+                        
+                        noeuds[i].Pred = liens[i].Depart.Numero;// liens[i].Depart <=> noeud actuel ?
+                        modif = true;
+                    }
+
+                }
+                if (!modif) { break; }
+            }
+
+            return distances;
         }
 
-        public int[,] FloydWarshall()//associe distances entre toutes les pairs de sommets
+    
+
+
+        public List<int> Pred_BellmanFord(Noeud noeud_depart, Noeud noeud_arrivee)
         {
-
-            int[,] W = matrice_adjacence;//initialisation W0 : matrice d'adjacence
-
-            for (int k = 0; k < noeuds.Count; k++)
+            List<int> predecesseurs = new List<int>();
+            BellmanFord(noeud_arrivee);
+            int predecesseur = noeud_depart.Numero;
+            while (predecesseur != noeud_arrivee.Numero)
             {
-                for (int i = 0; i < noeuds.Count; i++)
+                predecesseurs.Add(predecesseur);
+                predecesseur = noeuds[predecesseur - 1].Pred;
+            }
+            predecesseurs.Add(noeud_arrivee.Numero);
+            return predecesseurs;
+        }
+
+        public int[,] FloydWarshall(Noeud noeud)//associe distances entre toutes les pairs de sommets
+        {
+            int[,] W = new int[matrice_adjacence.GetLength(0), matrice_adjacence.GetLength(1)];
+            
+            for (int i = 0; i < matrice_adjacence.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrice_adjacence.GetLength(1); j++)
                 {
-                    for (int j = 0; j < noeuds.Count; j++)
+                    if (matrice_adjacence[i, j] != 0) { W[i, j] = matrice_adjacence[i, j]; }
+                    else { W[i, j] = int.MaxValue; }
+                }
+            }// initialisation de W0 à matrice_adjacence
+       
+            for (int k = 0;k < matrice_adjacence.GetLength(0); k++)
+            {
+                for (int i = 0; i<matrice_adjacence.GetLength(0); i++)
+                {
+                    for (int j=0; j < matrice_adjacence.GetLength(0); j++)
+
                     {
-                        W[i, j] = Math.Min(W[i, j], W[i, k] + W[k, j]);
+                        if (W[i,j]!=int.MaxValue && W[i,k] != int.MaxValue && W[k,j]!= int.MaxValue)
+                        {
+                            W[i, j] = Math.Min(W[i, j], W[i, k] + W[k, j]);
+                            if (W[i, j] < W[i, k] + W[k, j])
+                            {
+                                noeuds[j].Pred = noeuds[k].Numero;// si on change le chemin avec noeud k intermédiaire, k devient prédécesseur du noeud i.
+                            }
+                        }
+                        
                     }
                 }
             }
 
             return W;//matrice des chemins les plus courts des sommets i vers j
         }
+
+        public List<int> Pred_FloydWarshall(Noeud noeud_depart, Noeud noeud_arrivee)
+        {
+            List<int> predecesseurs = new List<int>();
+            FloydWarshall(noeud_arrivee);
+            int predecesseur = noeud_depart.Numero;
+            while (predecesseur != noeud_arrivee.Numero)
+            {
+                predecesseurs.Add(predecesseur);
+                predecesseur = noeuds[predecesseur - 1].Pred;
+            }
+            predecesseurs.Add(noeud_arrivee.Numero);
+            return predecesseurs;
+        }
+
+
 
         /// <summary>
         /// Affiche la liste et la matrice d'adjacence du graphe
