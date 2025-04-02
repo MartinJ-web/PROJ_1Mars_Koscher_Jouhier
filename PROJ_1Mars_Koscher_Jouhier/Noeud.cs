@@ -9,27 +9,23 @@ using System.Windows.Markup;
 
 namespace PROJ_1Mars_Koscher_Jouhier
 {
-    public class Noeud
+    public class Noeud<T>
     {
         /// <summary>
         /// Attribbuts pour la classe Noeud
         /// </summary>
         int numero;
-        string nom;
+        T classe;
         int pred;
         float x;
         float y;
 
 
-        public Noeud(int numero, string nom, float x, float y)
+        public Noeud(int numero, T classe)
         {
             this.numero = numero;
-            this.nom = nom;
-            this.x = x;
-            this.y = y;
+            this.classe = classe;
         }
-
-
 
         /// <summary>
         /// Constructeur à partir du numero du lien
@@ -48,9 +44,9 @@ namespace PROJ_1Mars_Koscher_Jouhier
             get { return numero; }
         }
 
-        public string Nom
+        public T Classe
         {
-            get { return nom; }
+            get { return classe; }
         }
 
         /// <summary>

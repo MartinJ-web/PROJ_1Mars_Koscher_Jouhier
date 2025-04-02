@@ -8,12 +8,12 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
         [TestMethod]
         public void TestEquals()
         {
-            Noeud noeud1 = new Noeud(1);
-            Noeud noeud2 = new Noeud(2);
-            Noeud noeud3 = new Noeud(3);
-            Lien lien1 = new Lien(noeud1, noeud2);
-            Lien lien2 = new Lien(noeud2, noeud1);
-            Lien lien3 = new Lien(noeud1, noeud3);
+            Noeud<int> noeud1 = new Noeud<int>(1);
+            Noeud<int> noeud2 = new Noeud<int>(2);
+            Noeud<int> noeud3 = new Noeud<int>(3);
+            Lien<int> lien1 = new Lien<int>(noeud1, noeud2);
+            Lien<int> lien2 = new Lien<int>(noeud2, noeud1);
+            Lien<int> lien3 = new Lien<int>(noeud1, noeud3);
             Assert.IsTrue(lien1.Equals(lien1));
             Assert.IsTrue(lien1.Equals(lien2));
             Assert.IsFalse(lien1.Equals(lien3));
@@ -29,11 +29,11 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
             string[] connexe = new string[2];
             connexe[0] = "1 2";
             connexe[1] = "2 3";
-            Graphe Gconnexe = new Graphe(connexe);
+            Graphe<int> Gconnexe = new Graphe<int>(connexe);
             string[] non_connexe = new string[2];
             non_connexe[0] = "1 1";
             non_connexe[1] = "2 2";
-            Graphe Gnon_connexe = new Graphe(non_connexe);
+            Graphe<int> Gnon_connexe = new Graphe<int>(non_connexe);
             Assert.IsTrue(Gconnexe.EstConnexe());
             Assert.IsFalse(Gnon_connexe.EstConnexe());
         }
@@ -42,17 +42,17 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
         public void TestMethodDFS()
         {
             string[] lignes = File.ReadAllLines("Liens_Test.txt");
-            Graphe graphe = new Graphe(lignes);
-            List<Noeud> DFS = new List<Noeud>();
-            Noeud noeud1 = new Noeud(1);
-            Noeud noeud2 = new Noeud(6);
-            Noeud noeud3 = new Noeud(2);
-            Noeud noeud4 = new Noeud(3);
-            Noeud noeud5 = new Noeud(7);
-            Noeud noeud6 = new Noeud(4);
-            Noeud noeud7 = new Noeud(9);
-            Noeud noeud8 = new Noeud(8);
-            Noeud noeud9 = new Noeud(5);
+            Graphe<int> graphe = new Graphe<int>(lignes);
+            List<Noeud<int>> DFS = new List<Noeud<int>>();
+            Noeud<int> noeud1 = new Noeud<int>(1);
+            Noeud<int> noeud2 = new Noeud<int>(6);
+            Noeud<int> noeud3 = new Noeud<int>(2);
+            Noeud<int> noeud4 = new Noeud<int>(3);
+            Noeud<int> noeud5 = new Noeud<int>(7);
+            Noeud<int> noeud6 = new Noeud<int>(4);
+            Noeud<int> noeud7 = new Noeud<int>(9);
+            Noeud<int> noeud8 = new Noeud<int>(8);
+            Noeud<int> noeud9 = new Noeud<int>(5);
             DFS.Add(noeud1);
             DFS.Add(noeud2);
             DFS.Add(noeud3);
@@ -73,17 +73,17 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
         public void TestMethodBFS()
         {
             string[] lignes = File.ReadAllLines("Liens_Test.txt");
-            Graphe graphe = new Graphe(lignes);
-            List<Noeud> BFS = new List<Noeud>();
-            Noeud noeud1 = new Noeud(1);
-            Noeud noeud2 = new Noeud(6);
-            Noeud noeud3 = new Noeud(2);
-            Noeud noeud4 = new Noeud(5);
-            Noeud noeud5 = new Noeud(8);
-            Noeud noeud6 = new Noeud(3);
-            Noeud noeud7 = new Noeud(7);
-            Noeud noeud8 = new Noeud(4);
-            Noeud noeud9 = new Noeud(9);
+            Graphe<int> graphe = new Graphe<int>(lignes);
+            List<Noeud<int>> BFS = new List<Noeud<int>>();
+            Noeud<int> noeud1 = new Noeud<int>(1);
+            Noeud<int> noeud2 = new Noeud<int>(6);
+            Noeud<int> noeud3 = new Noeud<int>(2);
+            Noeud<int> noeud4 = new Noeud<int>(5);
+            Noeud<int> noeud5 = new Noeud<int>(8);
+            Noeud<int> noeud6 = new Noeud<int>(3);
+            Noeud<int> noeud7 = new Noeud<int>(7);
+            Noeud<int> noeud8 = new Noeud<int>(4);
+            Noeud<int> noeud9 = new Noeud<int>(9);
             BFS.Add(noeud1);
             BFS.Add(noeud2);
             BFS.Add(noeud3);
@@ -103,14 +103,14 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
         public void TestMethodCircuit()
         {
             string[] lignes = File.ReadAllLines("Liens_Test.txt");
-            Graphe graphe = new Graphe(lignes);
-            List<Noeud> circuit = new List<Noeud>();
-            Noeud noeud1 = new Noeud(6);
-            Noeud noeud2 = new Noeud(8);
-            Noeud noeud3 = new Noeud(7);
-            Noeud noeud4 = new Noeud(3);
-            Noeud noeud5 = new Noeud(2);
-            Noeud noeud6 = new Noeud(6);
+            Graphe<int> graphe = new Graphe<int>(lignes);
+            List<Noeud<int>> circuit = new List<Noeud<int>>();
+            Noeud<int> noeud1 = new Noeud<int>(6);
+            Noeud<int> noeud2 = new Noeud<int>(8);
+            Noeud<int> noeud3 = new Noeud<int>(7);
+            Noeud<int> noeud4 = new Noeud<int>(3);
+            Noeud<int> noeud5 = new Noeud<int>(2);
+            Noeud<int> noeud6 = new Noeud<int>(6);
             circuit.Add(noeud1);
             circuit.Add(noeud2);
             circuit.Add(noeud3);
