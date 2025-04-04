@@ -122,5 +122,44 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
                 Assert.AreEqual(circuit[i].Numero, graphe.TrouveCircuit()[i].Numero);
             }
         }
+
+        [TestMethod]
+        public void TestDijkstra()
+        {
+            string[] liens = File.ReadAllLines("Liens_Test.txt");
+            Graphe<int> graphe = new Graphe<int>(liens);
+            Noeud<int> noeud1 = new Noeud<int>(7);
+            Noeud<int> noeud2 = new Noeud<int>(3);
+            Noeud<int> noeud3 = new Noeud<int>(4);
+            Noeud<int> noeud4 = new Noeud<int>(3);
+            List<Noeud<int>> LDijkstra = new List<Noeud<int>>();
+            LDijkstra.Add(noeud1);
+            LDijkstra.Add(noeud2);
+            LDijkstra.Add(noeud3);
+            LDijkstra.Add(noeud4);
+            List<Noeud<int>> pcc_dijkstra = graphe.PCC_Dijkstra(graphe.Noeuds[6], graphe.Noeuds[2]);
+            for (int i = 0; i < pcc_dijkstra.Count; i++)
+            {
+                Assert.AreEqual(pcc_dijkstra[i].Numero, LDijkstra[i].Numero);
+            }// TEST PREDECESSEURS
+
+
+            Assert.AreEqual(graphe.Dijkstra(graphe.Noeuds[2])[3], 2); //TEST CALCUL DISTANCES
+
+        }
+
+
+        [TestMethod]
+
+        public void TestChemins()
+        {
+            string[] liens = new string[3];
+            liens[0] = "1 2";
+            liens[1] = "1 3";
+            liens[2] = "4 4";
+            Graphe<int> graphe = new Graphe<int>(liens);
+            Assert.IsTrue(graphe.Chemin(graphe.Noeuds[1], graphe.Noeuds[2]));
+            Assert.IsFalse(graphe.Chemin(graphe.Noeuds[0], graphe.Noeuds[3]));
+        }
     }
 }

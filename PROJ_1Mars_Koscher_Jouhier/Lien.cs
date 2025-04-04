@@ -52,6 +52,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
             get { return arrivee; }
         }
 
+
         public int Poids
         {
             get { return poids; }

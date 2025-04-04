@@ -278,6 +278,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             }
         }
 
+        /// <summary>
+        /// Donne les plus courts chemins depuis un noeud de départ grace à dijkstra
+        /// </summary>
+        /// <param name="noeud_depart"> Noeud de départ pour les plus courts chemin </param>
+        /// <returns> tableau des plus courtes distances pour chaque noeuds </returns>
         public int[] Dijkstra(Noeud<T> noeud_depart)
         {
             List<Noeud<T>> sommets_visites = new List<Noeud<T>>();
@@ -333,6 +338,12 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return distances;
         }
 
+        /// <summary>
+        /// Donne le pcc trouvé avec dijkstra
+        /// </summary>
+        /// <param name="noeud_depart"> noeud de départ pour le pcc </param>
+        /// <param name="noeud_arrivee"> noeud d'arrivée pour le pcc </param>
+        /// <returns> une liste qui correspond au chemin parcouru </returns>
         public List<Noeud<T>> PCC_Dijkstra(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
             List<Noeud<T>> predecesseursN = new List<Noeud<T>>();
@@ -359,6 +370,11 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return predecesseursN;
         }
 
+        /// <summary>
+        /// Donne les plus courts chemins depuis un noeud de départ grace à Bellman ford
+        /// </summary>
+        /// <param name="noeud_depart"> Noeud de départ pour les plus courts chemin </param>
+        /// <returns> tableau des plus courtes distances pour chaque noeuds </returns>
         public int[] BellmanFord(Noeud<T> noeud_depart)
         {
             
@@ -397,23 +413,43 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return distances;
         }
 
-    
-
-
-        public List<int> Pred_BellmanFord(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
+        /// <summary>
+        /// Donne le pcc trouvé avec Bellman ford
+        /// </summary>
+        /// <param name="noeud_depart"> noeud de départ pour le pcc </param>
+        /// <param name="noeud_arrivee"> noeud d'arrivée pour le pcc </param>
+        /// <returns> une liste qui correspond au chemin parcouru </returns>
+        public List<Noeud<T>> PCC_BellmanFord(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
-            List<int> predecesseurs = new List<int>();
-            BellmanFord(noeud_arrivee);
-            int predecesseur = noeud_depart.Numero;
-            while (predecesseur != noeud_arrivee.Numero)
+            List<Noeud<T>> predecesseursN = new List<Noeud<T>>();
+            if (Chemin(noeud_arrivee, noeud_depart))
             {
-                predecesseurs.Add(predecesseur);
-                predecesseur = noeuds[predecesseur - 1].Pred;
+                List<int> predecesseurs = new List<int>();
+                BellmanFord(noeud_arrivee);
+                int predecesseur = noeud_depart.Numero;
+                while (predecesseur != noeud_arrivee.Numero)
+                {
+                    predecesseurs.Add(predecesseur);
+                    predecesseur = noeuds[predecesseur - 1].Pred;
+                }
+                predecesseurs.Add(noeud_arrivee.Numero);
+                foreach (int i in predecesseurs)
+                {
+                    predecesseursN.Add(noeuds[i - 1]);
+                }
             }
-            predecesseurs.Add(noeud_arrivee.Numero);
-            return predecesseurs;
+            else
+            {
+                predecesseursN = null;
+            }
+            return predecesseursN;
         }
 
+        /// <summary>
+        /// Donne les plus courts chemins depuis un noeud de départ grace à Floyd Warshall
+        /// </summary>
+        /// <param name="noeud"> Noeud de départ pour les plus courts chemin </param>
+        /// <returns> tableau des plus courtes distances pour chaque noeuds </returns>
         public int[,] FloydWarshall(Noeud<T> noeud)//associe distances entre toutes les pairs de sommets
         {
             int[,] W = new int[matrice_adjacence.GetLength(0), matrice_adjacence.GetLength(1)];
@@ -450,20 +486,37 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return W;//matrice des chemins les plus courts des sommets i vers j
         }
 
-        public List<int> Pred_FloydWarshall(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
+        /// <summary>
+        /// Donne le pcc trouvé avec floyd warshall
+        /// </summary>
+        /// <param name="noeud_depart"> noeud de départ pour le pcc </param>
+        /// <param name="noeud_arrivee"> noeud d'arrivée pour le pcc </param>
+        /// <returns> une liste qui correspond au chemin parcouru </returns>
+        public List<Noeud<T>> Pred_FloydWarshall(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
-            List<int> predecesseurs = new List<int>();
-            FloydWarshall(noeud_arrivee);
-            int predecesseur = noeud_depart.Numero;
-            while (predecesseur != noeud_arrivee.Numero)
+            List<Noeud<T>> predecesseursN = new List<Noeud<T>>();
+            if (Chemin(noeud_arrivee, noeud_depart))
             {
-                predecesseurs.Add(predecesseur);
-                predecesseur = noeuds[predecesseur - 1].Pred;
+                List<int> predecesseurs = new List<int>();
+                FloydWarshall(noeud_arrivee);
+                int predecesseur = noeud_depart.Numero;
+                while (predecesseur != noeud_arrivee.Numero)
+                {
+                    predecesseurs.Add(predecesseur);
+                    predecesseur = noeuds[predecesseur - 1].Pred;
+                }
+                predecesseurs.Add(noeud_arrivee.Numero);
+                foreach (int i in predecesseurs)
+                {
+                    predecesseursN.Add(noeuds[i - 1]);
+                }
             }
-            predecesseurs.Add(noeud_arrivee.Numero);
-            return predecesseurs;
+            else
+            {
+                predecesseursN = null;
+            }
+            return predecesseursN;
         }
-
 
 
         /// <summary>
@@ -570,6 +623,12 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return ordre;
         }
 
+        /// <summary>
+        /// Test si un chemin existe entre deux noeuds
+        /// </summary>
+        /// <param name="depart"> noeud de départ pour le chemin </param>
+        /// <param name="arrivee"> noeud d'arrivé pour le chemin </param>
+        /// <returns></returns>
         public bool Chemin(Noeud<T> depart, Noeud<T> arrivee)
         {
             return (BFS(depart).Contains(arrivee));
