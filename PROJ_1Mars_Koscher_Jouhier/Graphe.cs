@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
@@ -196,6 +197,59 @@ namespace PROJ_1Mars_Koscher_Jouhier
         }
 
         /// <summary>
+        /// Constructeur pour la classe graphe à partir d'une liste de liens
+        /// </summary>
+        /// <param name="liens"> Liste de liens </param>
+        public Graphe(List<Lien<T>> liens)
+        {
+            this.liens = liens;
+            List<Noeud<T>> noeuds = new List<Noeud<T>>();
+            foreach (Lien<T> lien in liens)
+            {
+                if (!noeuds.Contains(lien.Depart))
+                {
+                    noeuds.Add(lien.Depart);
+                }
+                if(!noeuds.Contains(lien.Arrivee))
+                {
+                    noeuds.Add(lien.Arrivee);
+                }
+            }
+            this.noeuds = noeuds;
+            List<List<Noeud<T>>> liste_adjacence = new List<List<Noeud<T>>>();
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                List<Noeud<T>> adjacence = new List<Noeud<T>>();
+                foreach (Lien<T> lien in liens)
+                {
+                    if (lien.Depart.Equals(noeuds[i]))
+                    {
+                        adjacence.Add(lien.Arrivee);
+                    }
+                    if (!lien.Sens && lien.Arrivee.Equals(noeuds[i]) && lien.Arrivee != lien.Depart)
+                    {
+                        adjacence.Add(lien.Depart);
+                    }
+                }
+                Tri(adjacence);
+                liste_adjacence.Add(adjacence);
+            }
+            this.liste_adjacence = liste_adjacence;
+
+            int[,] matrice_adjacence = new int[noeuds.Count, noeuds.Count];
+            Console.WriteLine(noeuds.Count);
+            foreach (Lien<T> lien in liens)
+            {
+                matrice_adjacence[lien.Depart.Numero - 1, lien.Arrivee.Numero - 1] = lien.Poids;
+                if (!lien.Sens)
+                {
+                    matrice_adjacence[lien.Arrivee.Numero - 1, lien.Depart.Numero - 1] = lien.Poids;
+                }
+            }
+            this.matrice_adjacence = matrice_adjacence;
+        }
+
+        /// <summary>
         /// Propiété pour la liste de noeuds du graphe
         /// </summary>
         public List<Noeud<T>> Noeuds
@@ -287,7 +341,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         {
             List<Noeud<T>> sommets_visites = new List<Noeud<T>>();
             List<Noeud<T>> sommets_traites = new List<Noeud<T>>();
-            int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
+            int[] distances = new int[noeuds.Count];
             for (int i = 0; i < noeuds.Count; i++)
             {
                 if (noeuds[i] == noeud_depart)
@@ -298,10 +352,10 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 {
                     distances[i] = int.MaxValue;
                 }
-            }//initialisation distances
-            Noeud<T> noeud_actuel = noeud_depart;//depart
+            }
+            Noeud<T> noeud_actuel = noeud_depart;
             sommets_visites.Add(noeud_actuel);
-            while (sommets_traites.Count < sommets_visites.Count)// vérifier condition sur sommets_visites
+            while (sommets_traites.Count < sommets_visites.Count)
             {
                 sommets_traites.Add(noeud_actuel);
                 for (int i = 0; i < noeuds.Count; i++)
@@ -309,7 +363,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     if (!sommets_traites.Contains(noeuds[i]) && matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] > 0)
                     {
                         
-                        if (!sommets_visites.Contains(noeuds[i]))//s'il n'est pas encore visité
+                        if (!sommets_visites.Contains(noeuds[i]))
                         {
                             sommets_visites.Add(noeuds[i]);
                             distances[i] = matrice_adjacence[noeud_actuel.Numero - 1, noeuds[i].Numero - 1] + distances[noeud_actuel.Numero - 1];
@@ -377,39 +431,61 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <returns> tableau des plus courtes distances pour chaque noeuds </returns>
         public int[] BellmanFord(Noeud<T> noeud_depart)
         {
-            
-            int[] distances = new int[noeuds.Count];//distance de noeud par rapport à noeuddepart
-
-            for (int i = 0; i < noeuds.Count; i++)
+            int n = noeuds.Count;
+            int[] distances = new int[n];
+            for (int i = 0; i < n; i++)
             {
-                if (noeuds[i] == noeud_depart)
+                distances[i] = int.MaxValue;
+            }
+            distances[noeud_depart.Numero - 1] = 0;
+            for (int i = 0; i < n - 1; i++)
+            {
+                foreach (Lien<T> lien in liens)
                 {
-                    distances[i] = 0;
+                    if(lien.Sens == true)
+                    {
+                        if (distances[lien.Depart.Numero - 1] != int.MaxValue && distances[lien.Depart.Numero - 1] + lien.Poids < distances[lien.Arrivee.Numero - 1])
+                        {
+                            distances[lien.Arrivee.Numero - 1] = distances[lien.Depart.Numero - 1] + lien.Poids;
+                            lien.Arrivee.Pred = lien.Depart.Numero;
+                        }
+                    }
+                    else
+                    {
+                        if (distances[lien.Depart.Numero - 1] != int.MaxValue && distances[lien.Depart.Numero - 1] + lien.Poids < distances[lien.Arrivee.Numero - 1])
+                        {
+                            distances[lien.Arrivee.Numero - 1] = distances[lien.Depart.Numero - 1] + lien.Poids;
+                            lien.Arrivee.Pred = lien.Depart.Numero;
+                        }
+                        else if (distances[lien.Arrivee.Numero - 1] != int.MaxValue && distances[lien.Arrivee.Numero - 1] + lien.Poids < distances[lien.Depart.Numero - 1])
+                        {
+                            distances[lien.Depart.Numero - 1] = distances[lien.Arrivee.Numero - 1] + lien.Poids;
+                            lien.Depart.Pred = lien.Arrivee.Numero;
+                        }
+                    }
+                }
+            }
+            foreach (Lien<T> lien in liens)
+            {
+                if (lien.Sens == true)
+                {
+                    if (distances[lien.Depart.Numero - 1] != int.MaxValue && distances[lien.Depart.Numero - 1] + lien.Poids < distances[lien.Arrivee.Numero - 1])
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
-                    distances[i] = int.MaxValue;
-                }
-            }
-
-            for (int i = 0; i < noeuds.Count - 1; i++)
-            {
-                bool modif = false;
-                for (int j = 0; j < liens.Count - 1; j++)
-                {
-                    if (distances[liens[j].Depart.Numero - 1] + matrice_adjacence[liens[j].Depart.Numero - 1, liens[j].Arrivee.Numero - 1] < distances[liens[j].Arrivee.Numero - 1])
+                    if (distances[lien.Depart.Numero - 1] != int.MaxValue && distances[lien.Depart.Numero - 1] + lien.Poids < distances[lien.Arrivee.Numero - 1])
                     {
-
-                        distances[liens[j].Arrivee.Numero - 1] = distances[liens[j].Arrivee.Numero - 1] + matrice_adjacence[liens[j].Depart.Numero - 1, liens[j].Arrivee.Numero - 1];
-                        
-                        noeuds[i].Pred = liens[i].Depart.Numero;// liens[i].Depart <=> noeud actuel ?
-                        modif = true;
+                        return null;
                     }
-
+                    else if (distances[lien.Arrivee.Numero - 1] != int.MaxValue && distances[lien.Arrivee.Numero - 1] + lien.Poids < distances[lien.Depart.Numero - 1])
+                    {
+                        return null;
+                    }
                 }
-                if (!modif) { break; }
             }
-
             return distances;
         }
 
@@ -422,10 +498,9 @@ namespace PROJ_1Mars_Koscher_Jouhier
         public List<Noeud<T>> PCC_BellmanFord(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
             List<Noeud<T>> predecesseursN = new List<Noeud<T>>();
-            if (Chemin(noeud_arrivee, noeud_depart))
+            if (Chemin(noeud_arrivee, noeud_depart) && BellmanFord(noeud_arrivee) != null)
             {
                 List<int> predecesseurs = new List<int>();
-                BellmanFord(noeud_arrivee);
                 int predecesseur = noeud_depart.Numero;
                 while (predecesseur != noeud_arrivee.Numero)
                 {
@@ -448,42 +523,57 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <summary>
         /// Donne les plus courts chemins depuis un noeud de départ grace à Floyd Warshall
         /// </summary>
-        /// <param name="noeud"> Noeud de départ pour les plus courts chemin </param>
+        /// <param name="noeud_depart"> Noeud de départ pour les plus courts chemin </param>
         /// <returns> tableau des plus courtes distances pour chaque noeuds </returns>
-        public int[,] FloydWarshall(Noeud<T> noeud)//associe distances entre toutes les pairs de sommets
+        public int[] FloydWarshall(Noeud<T> noeud_depart)
         {
-            int[,] W = new int[matrice_adjacence.GetLength(0), matrice_adjacence.GetLength(1)];
-            
-            for (int i = 0; i < matrice_adjacence.GetLength(0); i++)
+            int n = noeuds.Count();
+            int[,] w = new int[n, n];
+            int[,] pred = new int[n, n];
+            for (int i = 0; i < n; i++)
             {
-                for (int j = 0; j < matrice_adjacence.GetLength(1); j++)
+                for (int j = 0; j < n; j++)
                 {
-                    if (matrice_adjacence[i, j] != 0) { W[i, j] = matrice_adjacence[i, j]; }
-                    else { W[i, j] = int.MaxValue; }
-                }
-            }// initialisation de W0 à matrice_adjacence
-       
-            for (int k = 0;k < matrice_adjacence.GetLength(0); k++)
-            {
-                for (int i = 0; i<matrice_adjacence.GetLength(0); i++)
-                {
-                    for (int j=0; j < matrice_adjacence.GetLength(0); j++)
-
+                    if(i != j && matrice_adjacence[i, j] == 0)
                     {
-                        if (W[i,j]!=int.MaxValue && W[i,k] != int.MaxValue && W[k,j]!= int.MaxValue)
-                        {
-                            W[i, j] = Math.Min(W[i, j], W[i, k] + W[k, j]);
-                            if (W[i, j] < W[i, k] + W[k, j])
-                            {
-                                noeuds[j].Pred = noeuds[k].Numero;// si on change le chemin avec noeud k intermédiaire, k devient prédécesseur du noeud i.
-                            }
-                        }
-                        
+                        w[i, j] = int.MaxValue;
+                    }
+                    else
+                    {
+                        w[i, j] = matrice_adjacence[i,j];
+                    }
+                    if (i != j && matrice_adjacence[i, j] != int.MaxValue)
+                    {
+                        pred[i, j] = i + 1;
                     }
                 }
             }
+            for (int k = 0; k < n; k++)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (w[i, k] != int.MaxValue && w[k, j] != int.MaxValue)
+                        {
+                            int distance = w[i, k] + w[k, j];
+                            if (distance < w[i, j])
+                            {
+                                w[i, j] = distance;
+                                pred[i, j] = pred[k, j];
+                            }
+                        }
+                    }
+                }
+            }
+            int[] distances = new int[n];
+            for (int i = 0; i < n; i++)
+            {
+                distances[i] = w[noeud_depart.Numero - 1, i];
+                noeuds[i].Pred = pred[noeud_depart.Numero - 1, i];
+            }
 
-            return W;//matrice des chemins les plus courts des sommets i vers j
+            return distances;
         }
 
         /// <summary>
@@ -492,7 +582,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// <param name="noeud_depart"> noeud de départ pour le pcc </param>
         /// <param name="noeud_arrivee"> noeud d'arrivée pour le pcc </param>
         /// <returns> une liste qui correspond au chemin parcouru </returns>
-        public List<Noeud<T>> Pred_FloydWarshall(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
+        public List<Noeud<T>> PCC_FloydWarshall(Noeud<T> noeud_depart, Noeud<T> noeud_arrivee)
         {
             List<Noeud<T>> predecesseursN = new List<Noeud<T>>();
             if (Chemin(noeud_arrivee, noeud_depart))
@@ -518,6 +608,296 @@ namespace PROJ_1Mars_Koscher_Jouhier
             return predecesseursN;
         }
 
+        /// <summary>
+        /// Coloration de graphe avec Welsh-Powell, attribut un numéro de couleur à chaque noeuds
+        /// </summary>
+        /// <returns> Tableau des couleurs pour chaque noeuds </returns>
+        public int[] CouleursWelshPowell()
+        {
+            int[] degres_sommets = new int[noeuds.Count()];
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                int degre = 0;
+                for (int j = 0; j < noeuds.Count; j++)
+                {
+                    degre += matrice_adjacence[i, j];
+                }
+                degres_sommets[noeuds[i].Numero - 1] = degre;
+            }
+            List<Noeud<T>> sommets = new List<Noeud<T>>();
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                sommets.Add(noeuds[i]);
+            }
+            for (int i = 0; i < sommets.Count - 1; i++)
+            {
+                for (int j = 0; j < sommets.Count - i - 1; j++)
+                {
+                    if (degres_sommets[noeuds[j].Numero - 1] < degres_sommets[noeuds[j + 1].Numero - 1])
+                    {
+                        Noeud<T> temp = sommets[j];
+                        sommets[j] = sommets[j + 1];
+                        sommets[j + 1] = temp;
+                    }
+                }
+            }
+            int couleur = -1;
+            int[] couleur_par_noeud = new int[Noeuds.Count()];
+            while (sommets.Count > 0)
+            {
+                couleur++;
+                List<Noeud<T>> voisins = new List<Noeud<T>>();
+                Noeud<T> x = sommets[0];
+                couleur_par_noeud[x.Numero - 1] = couleur;
+                sommets.RemoveAt(0);
+                voisins = liste_adjacence[x.Numero - 1];
+                int i = 0;
+                while (i < sommets.Count)
+                {
+                    Noeud<T> s = sommets[i];
+                    bool estVoisin = false;
+                    for (int j = 0; j < voisins.Count; j++)
+                    {
+                        if (voisins[j].Equals(s))
+                        {
+                            estVoisin = true;
+                            break;
+                        }
+                    }
+                    if (!estVoisin)
+                    {
+                        couleur_par_noeud[s.Numero - 1] = couleur;
+                        List<Noeud<T>> voisins_s = liste_adjacence[s.Numero - 1];
+                        for (int k = 0; k < voisins_s.Count; k++)
+                        {
+                            if (!voisins.Contains(voisins_s[k]))
+                            {
+                                voisins.Add(voisins_s[k]);
+                            }
+                        }
+                        sommets.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+            }
+            return couleur_par_noeud;
+        }
+
+        /// <summary>
+        /// Colore le graphe avec Welsh-Powell
+        /// </summary>
+        /// <returns> Nombre de couleurs necessaires pour colorer le graphe </returns>
+        public int WelshPowell()
+        {
+            int[] degres_sommets = new int[noeuds.Count()];
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                int degre = 0;
+                for (int j = 0; j < noeuds.Count; j++)
+                {
+                    degre += matrice_adjacence[i, j];
+                }
+                degres_sommets[noeuds[i].Numero - 1] = degre;
+            }
+            List<Noeud<T>> sommets = new List<Noeud<T>>();
+            for (int i = 0; i < noeuds.Count; i++)
+            {
+                sommets.Add(noeuds[i]);
+            }
+            for (int i = 0; i < sommets.Count - 1; i++)
+            {
+                for (int j = 0; j < sommets.Count - i - 1; j++)
+                {
+                    if (degres_sommets[noeuds[j].Numero - 1] < degres_sommets[noeuds[j + 1].Numero - 1])
+                    {
+                        Noeud<T> temp = sommets[j];
+                        sommets[j] = sommets[j + 1];
+                        sommets[j + 1] = temp;
+                     }
+                }
+            }
+            int couleur = 0;
+            Dictionary<Noeud<T>, int> couleur_par_noeud = new Dictionary<Noeud<T>, int>();
+            while (sommets.Count > 0)
+            {
+                couleur++;
+
+                List<Noeud<T>> voisins = new List<Noeud<T>>();
+                Noeud<T> x = sommets[0];
+                couleur_par_noeud.Add(x, couleur);
+                sommets.RemoveAt(0);
+                voisins = liste_adjacence[x.Numero - 1];
+                int i = 0;
+                while (i < sommets.Count)
+                {
+                    Noeud<T> s = sommets[i];
+
+                    bool estVoisin = false;
+                    for (int j = 0; j < voisins.Count; j++)
+                    {
+                        if (voisins[j].Equals(s))
+                        {
+                            estVoisin = true;
+                            break;
+                        }
+                    }
+                    if (!estVoisin)
+                    {
+                        couleur_par_noeud.Add(s, couleur);
+                        List<Noeud<T>> voisins_s = liste_adjacence[s.Numero - 1];
+                        for (int k = 0; k < voisins_s.Count; k++)
+                        {
+                            if (!voisins.Contains(voisins_s[k]))
+                            {
+                                voisins.Add(voisins_s[k]);
+                            }
+                        }
+                        sommets.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+            }
+            return couleur;
+        }
+
+        public List<Lien<T>> ChuLiuEdmonds(Noeud<T> racine)
+        {
+            int[,] matrice_adjacence_2 = new int[matrice_adjacence.GetLength(0), matrice_adjacence.GetLength(1)];
+            for (int i = 0; i < matrice_adjacence_2.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrice_adjacence_2.GetLength(1); j++)
+                {
+                    if (j == racine.Numero - 1)
+                    {
+                        matrice_adjacence_2[i, j] = 0;
+                    }
+                    else
+                    {
+                        matrice_adjacence_2[i, j] = matrice_adjacence[i, j];
+                    }
+                }
+            }
+            List<Lien<T>> P = new List<Lien<T>>();
+            foreach (Noeud<T> noeud in noeuds)
+            {
+                if (noeud == racine)
+                    continue;
+
+                Lien<T> arc_minimum = null;
+                foreach (Lien<T> lien in Liens)
+                {
+                    if (lien.Arrivee.Equals(noeud))
+                    {
+                        if (arc_minimum == null || lien.Poids < arc_minimum.Poids)
+                        {
+                            arc_minimum = lien;
+                        }
+                    }
+                }
+
+                if (arc_minimum != null)
+                P.Add(arc_minimum);
+            }
+            Graphe<T> G2 = new Graphe<T>(P);
+            List<Noeud<T>> circuit = G2.TrouveCircuit();
+            if (circuit == null)
+            {
+                return P;
+            }
+            else
+            {
+                List<Noeud<T>> V2 = new List<Noeud<T>>();
+                for(int i = 0; i < G2.Noeuds.Count(); i++)
+                {
+                    V2.Add(G2.Noeuds[i]);
+                }
+                for(int i = 0)
+                foreach (Noeud<T> n in C)
+                {
+                    V2.Remove(n);
+                }
+
+                // Ajout du nouveau sommet vC représentant le cycle contracté
+                Noeud<T> vC = new Noeud<T>(-1); // Numéro fictif
+                V2.Add(vC);
+
+                // E2 = arcs du graphe contracté
+                List<Lien<T>> E2 = new List<Lien<T>>();
+                Dictionary<Lien<T>, Lien<T>> correspondance = new Dictionary<Lien<T>, Lien<T>>();
+
+                foreach (Lien<T> e in Liens)
+                {
+                    bool uInC = C.Contains(e.Depart);
+                    bool vInC = C.Contains(e.Arrivee);
+
+                    if (!uInC && !vInC)
+                    {
+                        // arc extérieur au cycle
+                        E2.Add(e);
+                        correspondance[e] = e;
+                    }
+                    else if (!uInC && vInC)
+                    {
+                        // arc entrant dans le cycle
+                        Lien<T> arcMinDestV = P.Find(x => x.Arrivee.Equals(e.Arrivee));
+                        int poidsReduit = e.Poids - arcMinDestV.Poids;
+                        Lien<T> nouveau = new Lien<T>(e.Depart, vC, poidsReduit);
+                        E2.Add(nouveau);
+                        correspondance[nouveau] = e;
+                    }
+                    else if (uInC && !vInC)
+                    {
+                        // arc sortant du cycle
+                        Lien<T> nouveau = new Lien<T>(vC, e.Arrivee, e.Poids);
+                        E2.Add(nouveau);
+                        correspondance[nouveau] = e;
+                    }
+                }
+
+                // Création du graphe contracté
+                Graphe<T> grapheContracte = new Graphe<T>(V2, E2);
+
+                // Appel récursif sur le graphe contracté
+                List<Lien<T>> A2 = grapheContracte.ChuLiuEdmonds(racine.Equals(vC) ? racine : vC);
+
+                // Étape 5 : Reconstruire l'arborescence de G à partir de A2
+                List<Lien<T>> A = new List<Lien<T>>();
+
+                // On récupère l’arc de A2 qui arrive sur vC
+                Lien<T> arcVersVC = A2.Find(x => x.Arrivee.Equals(vC));
+                Lien<T> arcOriginal = correspondance[arcVersVC];
+                Noeud<T> sommetDuCycle = arcOriginal.Arrivee;
+
+                // Retirer l’arc (π(v), v) de P qui ferme le cycle
+                Lien<T> arcASupprimer = P.Find(x => x.Arrivee.Equals(sommetDuCycle));
+                P.Remove(arcASupprimer);
+
+                // Ajouter les arcs du cycle sauf celui retiré
+                foreach (Lien<T> l in P)
+                {
+                    A.Add(l);
+                }
+
+                // Ajouter les arcs hors cycle (en les décompressant)
+                foreach (Lien<T> l in A2)
+                {
+                    if (!l.Equals(arcVersVC))
+                    {
+                        A.Add(correspondance[l]);
+                    }
+                }
+
+                A.Add(arcOriginal); // Ajouter l’arc remplaçant celui du cycle
+
+                return A;
+            }
+        }
 
         /// <summary>
         /// Affiche la liste et la matrice d'adjacence du graphe
@@ -720,7 +1100,7 @@ namespace PROJ_1Mars_Koscher_Jouhier
         /// Génère et ouvre une image représentant le graphe
         /// </summary>
         /// <exception cref="NotSupportedException"> Occure si le système d'exploitation n'est pas reconnu (empêche d'ouvrir l'image) </exception>
-        public void AfficheGrapheCercle()
+        public void AfficheGrapheCercle(bool coloration = false)
         {
             int width = 1080;
             int height = 1080;
@@ -733,6 +1113,17 @@ namespace PROJ_1Mars_Koscher_Jouhier
                 float y = centerY + radius * (float)Math.Sin(angle);
                 noeuds[i].X = x;
                 noeuds[i].Y = y;
+            }
+            List<SKColor> nodePaints = new List<SKColor>();
+            int[] couleurs_noeuds = CouleursWelshPowell();
+            if (coloration)
+            {
+                int nb_couleurs = WelshPowell();
+                for (int i = 0; i < nb_couleurs; i++)
+                {
+                    SKColor color = SKColor.FromHsv(i * 360f / nb_couleurs, 100, 100);
+                    nodePaints.Add(color);
+                }
             }
             using (var bitmap = new SKBitmap(width, height))
             using (var canvas = new SKCanvas(bitmap))
@@ -760,13 +1151,13 @@ namespace PROJ_1Mars_Koscher_Jouhier
                         float midY = (noeudD.Y + noeudA.Y) / 2;
                         float quartX = (noeudD.X + midX) / 2;
                         float quartY = (noeudD.Y + midY) / 2;
-                        
+
                         canvas.DrawRoundRect(quartX - 2, quartY - 19, 22, 22, 4, 4, weightPaint);
                         canvas.DrawText(Convert.ToString(lien.Poids), quartX + 2, quartY - 2, textPaint2);
 
 
                         //Afficher le sens de l'arc
-                        if(lien.Sens)
+                        if (lien.Sens)
                         {
                             float tailleFleche = 10; // Taille de la flèche
 
@@ -788,11 +1179,24 @@ namespace PROJ_1Mars_Koscher_Jouhier
                     }
 
                     // Dessiner les nœuds
-                    foreach (var noeud in noeuds)
+                    if(coloration)
                     {
-                        canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
-                        canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 4, noeud.Y + 8, textPaint);
+                        foreach(var noeud in noeuds)
+                        {
+                            Console.WriteLine(couleurs_noeuds[noeud.Numero - 1]);
+                            nodePaint.Color = nodePaints[couleurs_noeuds[noeud.Numero - 1]];
+                            canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
+                            canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 4, noeud.Y + 8, textPaint);
+                        }
                     }
+                    else
+                    {
+                        foreach (var noeud in noeuds)
+                        {
+                            canvas.DrawCircle(noeud.X, noeud.Y, 30, nodePaint);
+                            canvas.DrawText(Convert.ToString(noeud.Numero), noeud.X - 4, noeud.Y + 8, textPaint);
+                        }
+                    }   
                 }
 
                 // Sauvegarder l'image

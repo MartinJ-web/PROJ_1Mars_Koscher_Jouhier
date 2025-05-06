@@ -141,16 +141,55 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
             for (int i = 0; i < pcc_dijkstra.Count; i++)
             {
                 Assert.AreEqual(pcc_dijkstra[i].Numero, LDijkstra[i].Numero);
-            }// TEST PREDECESSEURS
-
-
-            Assert.AreEqual(graphe.Dijkstra(graphe.Noeuds[2])[3], 2); //TEST CALCUL DISTANCES
-
+            }
+            Assert.AreEqual(graphe.Dijkstra(graphe.Noeuds[2])[3], 2);
         }
 
+        [TestMethod]
+        public void TestBellmanFord()
+        {
+            string[] liens = File.ReadAllLines("Liens_Test.txt");
+            Graphe<int> graphe = new Graphe<int>(liens);
+            Noeud<int> noeud1 = new Noeud<int>(7);
+            Noeud<int> noeud2 = new Noeud<int>(3);
+            Noeud<int> noeud3 = new Noeud<int>(4);
+            Noeud<int> noeud4 = new Noeud<int>(3);
+            List<Noeud<int>> LBellmanFord = new List<Noeud<int>>();
+            LBellmanFord.Add(noeud1);
+            LBellmanFord.Add(noeud2);
+            LBellmanFord.Add(noeud3);
+            LBellmanFord.Add(noeud4);
+            List<Noeud<int>> pcc_dijkstra = graphe.PCC_BellmanFord(graphe.Noeuds[6], graphe.Noeuds[2]);
+            for (int i = 0; i < pcc_dijkstra.Count; i++)
+            {
+                Assert.AreEqual(pcc_dijkstra[i].Numero, LBellmanFord[i].Numero);
+            }
+            Assert.AreEqual(graphe.BellmanFord(graphe.Noeuds[2])[3], 2);
+        }
 
         [TestMethod]
+        public void TestFloydWarshall()
+        {
+            string[] liens = File.ReadAllLines("Liens_Test.txt");
+            Graphe<int> graphe = new Graphe<int>(liens);
+            Noeud<int> noeud1 = new Noeud<int>(2);
+            Noeud<int> noeud2 = new Noeud<int>(3);
+            Noeud<int> noeud3 = new Noeud<int>(7);
+            Noeud<int> noeud4 = new Noeud<int>(7);
+            List<Noeud<int>> LFloydWarshall = new List<Noeud<int>>();
+            LFloydWarshall.Add(noeud1);
+            LFloydWarshall.Add(noeud2);
+            LFloydWarshall.Add(noeud3);
+            LFloydWarshall.Add(noeud4);
+            List<Noeud<int>> pcc_dijkstra = graphe.PCC_FloydWarshall(graphe.Noeuds[1], graphe.Noeuds[6]);
+            for (int i = 0; i < pcc_dijkstra.Count; i++)
+            {
+                Assert.AreEqual(pcc_dijkstra[i].Numero, LFloydWarshall[i].Numero);
+            }
+            Assert.AreEqual(graphe.FloydWarshall(graphe.Noeuds[2])[3], 2);
+        }
 
+        [TestMethod]
         public void TestChemins()
         {
             string[] liens = new string[3];
@@ -160,6 +199,28 @@ namespace PROJ_1Mars_Koscher_Jouhier_TestU
             Graphe<int> graphe = new Graphe<int>(liens);
             Assert.IsTrue(graphe.Chemin(graphe.Noeuds[1], graphe.Noeuds[2]));
             Assert.IsFalse(graphe.Chemin(graphe.Noeuds[0], graphe.Noeuds[3]));
+        }
+
+        [TestMethod]
+        public void  TestWelshPowell()
+        {
+            string[] liens = File.ReadAllLines("Liens_Test.txt");
+            Graphe<int> graphe = new Graphe<int>(liens);
+            Assert.AreEqual(graphe.WelshPowell(), 3);
+            int[] couleursWP = graphe.CouleursWelshPowell();
+            int[] couleurs = new int[graphe.Noeuds.Count()];
+            couleurs[0] = 0;
+            couleurs[1] = 0;
+            couleurs[2] = 1;
+            couleurs[3] = 0;
+            couleurs[4] = 2;
+            couleurs[5] = 1;
+            couleurs[6] = 2;
+            couleurs[7] = 0;
+            for(int i = 0; i < 8; i++)
+            {
+                Assert.AreEqual(couleursWP[i], couleurs[i]);
+            }
         }
     }
 }
